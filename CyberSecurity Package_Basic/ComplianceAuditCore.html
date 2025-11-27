@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Synaptics.Systems — Compliance Audit Core v2</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --bg:#040514;
+      --bg2:#060821;
+      --panel:#0b0f27;
+      --panel2:#0f1533;
+      --line:#1d2753;
+      --cyan:#12f0ff;
+      --cyanSoft:rgba(18,240,255,.12);
+      --violet:#9b7bff;
+      --green:#3ce57c;
+      --yellow:#ffd166;
+      --red:#ff4d6d;
+      --text:#eef1ff;
+      --muted:#9aa3c7;
+      --shadow:0 14px 44px rgba(0,0,0,.6);
+      --r:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; color:var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 700px at 8% -10%, rgba(155,123,255,.16), transparent 60%),
+        radial-gradient(900px 600px at 95% 0%, rgba(18,240,255,.14), transparent 55%),
+        linear-gradient(180deg, var(--bg), var(--bg2));
+      min-height:100vh;
+    }
+    header{
+      position:sticky; top:0; z-index:10;
+      backdrop-filter: blur(8px);
+      background: linear-gradient(180deg, rgba(4,5,20,.95), rgba(4,5,20,.55));
+      border-bottom:1px solid var(--line);
+    }
+    .wrap{max-width:1250px; margin:0 auto; padding:16px;}
+    .title{
+      display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+    }
+    .logo{
+      width:46px; height:46px; border-radius:12px;
+      background:
+        radial-gradient(circle at 25% 25%, #fff, transparent 40%),
+        conic-gradient(from 140deg, var(--cyan), var(--violet), var(--cyan));
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:0 0 22px rgba(18,240,255,.45);
+    }
+    h1{margin:0; font-size:20px; letter-spacing:.6px}
+    .sub{font-size:12px; color:var(--muted)}
+    .row{display:flex; gap:8px; flex-wrap:wrap}
+    .row > *{flex:1}
+
+    .grid{
+      max-width:1250px; margin:0 auto;
+      padding:14px 16px 30px;
+      display:grid; gap:14px;
+      grid-template-columns:340px 1fr;
+    }
+    @media (max-width: 1000px){
+      .grid{grid-template-columns:1fr}
+    }
+
+    .card{
+      background: linear-gradient(180deg, var(--panel), var(--panel2));
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      box-shadow:var(--shadow);
+      padding:14px;
+    }
+    .card h2{
+      margin:0 0 10px; font-size:14px; letter-spacing:.5px;
+      display:flex; align-items:center; gap:8px;
+    }
+    .chip{
+      font-size:11px; color:var(--muted);
+      padding:4px 8px; border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+    }
+
+    label{font-size:12px; color:var(--muted)}
+    input, select, textarea{
+      width:100%;
+      background:#070b24;
+      border:1px solid var(--line);
+      color:var(--text);
+      padding:9px 10px;
+      border-radius:12px;
+      outline:none;
+    }
+    textarea{min-height:110px; resize:vertical}
+
+    .btn{
+      width:100%;
+      border:1px solid var(--line);
+      background:#0b1333;
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:700; letter-spacing:.3px;
+      transition:.18s ease;
+    }
+    .btn:hover{
+      transform:translateY(-1px);
+      border-color:var(--cyan);
+      box-shadow:0 0 0 3px var(--cyanSoft);
+    }
+    .btn.small{width:auto; font-size:12px; padding:7px 10px}
+    .btn.green{border-color:rgba(60,229,124,.35)}
+    .btn.yellow{border-color:rgba(255,209,102,.4)}
+    .btn.red{border-color:rgba(255,77,109,.5)}
+
+    .kpi{
+      display:grid; gap:10px;
+      grid-template-columns:repeat(4,1fr);
+    }
+    @media (max-width:850px){.kpi{grid-template-columns:1fr 1fr}}
+    @media (max-width:520px){.kpi{grid-template-columns:1fr}}
+
+    .k{
+      padding:12px; border-radius:14px; border:1px solid var(--line);
+      background:rgba(255,255,255,.02);
+      position:relative; overflow:hidden;
+    }
+    .k .label{font-size:12px; color:var(--muted)}
+    .k .value{font-size:20px; font-weight:800; margin-top:4px}
+    .glow{
+      position:absolute; width:180px; height:180px; right:-60px; top:-70px;
+      background:radial-gradient(circle, rgba(18,240,255,.18), transparent 60%);
+      filter:blur(10px);
+    }
+
+    .meter{
+      height:10px; margin-top:8px;
+      border:1px solid var(--line);
+      background:#050a1d;
+      border-radius:999px; overflow:hidden;
+    }
+    .meter > div{
+      height:100%; width:0%;
+      background:linear-gradient(90deg, var(--green), var(--yellow), var(--red));
+      transition:width .25s ease;
+    }
+
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono";}
+    .list{
+      display:flex; flex-direction:column; gap:8px;
+      max-height:260px; overflow:auto; padding-right:4px;
+    }
+    .item{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.02);
+      padding:8px; border-radius:12px; font-size:12px;
+    }
+    .tag{
+      font-size:11px; padding:2px 6px; border-radius:999px;
+      border:1px solid var(--line); margin-left:6px;
+    }
+    .tag.g{color:var(--green)}
+    .tag.y{color:var(--yellow)}
+    .tag.r{color:var(--red)}
+
+    .footer{font-size:11px; color:var(--muted); opacity:.8; margin-top:8px}
+    .pill{
+      display:inline-flex; align-items:center; gap:6px;
+      padding:4px 8px; border-radius:999px; font-size:11px;
+      border:1px solid var(--line); background:rgba(255,255,255,.03);
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="wrap title">
+    <div class="logo"></div>
+    <div>
+      <h1>Compliance Audit Core v2</h1>
+      <div class="sub">Entropy-anchored integrity scans • quantum-safe posture • Synaptics.Systems styling</div>
+    </div>
+    <div style="margin-left:auto" class="row">
+      <button class="btn small" id="btnExport">Export Audit</button>
+      <button class="btn small" id="btnReset">Reset Session</button>
+    </div>
+  </div>
+</header>
+
+<main class="grid">
+  <!-- LEFT COLUMN -->
+  <section class="row" style="flex-direction:column; gap:14px">
+
+    <div class="card">
+      <h2>1) Audit Profile <span class="chip">Foundation</span></h2>
+      <div class="row">
+        <div>
+          <label>Audit name</label>
+          <input id="auditName" placeholder="e.g., NDSP / MCE Public Layer Audit" />
+        </div>
+        <div>
+          <label>System layer</label>
+          <select id="systemLayer">
+            <option value="public_web">Public Web</option>
+            <option value="auth_kyc">Auth / KYC</option>
+            <option value="payments">Payments</option>
+            <option value="trading_exchange">Trading / Exchange</option>
+            <option value="admin_ops">Admin Ops</option>
+            <option value="genesis_core">Genesis Core</option>
+          </select>
+        </div>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <div>
+          <label>Jurisdiction</label>
+          <select id="jurisdiction">
+            <option value="ca">Canada (FINTRAC / PIPEDA)</option>
+            <option value="us">United States</option>
+            <option value="eu">EU / GDPR</option>
+            <option value="global">Global Multi-Region</option>
+          </select>
+        </div>
+        <div>
+          <label>Strictness</label>
+          <select id="strictness">
+            <option value="balanced" selected>Balanced</option>
+            <option value="strict">Strict / High-Assurance</option>
+            <option value="observe">Observe-Only</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>2) Scan Parameters <span class="chip">Inputs</span></h2>
+      <div class="row">
+        <div>
+          <label>Entropy sensitivity (0–100)</label>
+          <input id="sensEntropy" type="number" min="0" max="100" value="60" />
+        </div>
+        <div>
+          <label>Continuity weight</label>
+          <input id="wContinuity" type="number" min="0" max="100" value="70" />
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:8px">
+        <div>
+          <label>Metadata anchor depth</label>
+          <select id="anchorDepth">
+            <option value="lite">Lite (fast)</option>
+            <option value="standard" selected>Standard</option>
+            <option value="deep">Deep (slow, best)</option>
+          </select>
+        </div>
+        <div>
+          <label>Quantum-safe posture</label>
+          <select id="qSafe">
+            <option value="on" selected>ON — defensive crypto assumptions</option>
+            <option value="audit">Audit only</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-top:10px">
+        <label>Audit evidence (logs / text / configs)</label>
+        <textarea id="evidence" placeholder="Paste system logs, policies, prompts, or config snapshots..."></textarea>
+      </div>
+
+      <div style="margin-top:10px">
+        <label>Tags (comma separated)</label>
+        <input id="tags" placeholder="kyc, aml, wallet, public-ui, api, entropy" />
+      </div>
+
+      <div class="row" style="margin-top:10px">
+        <button class="btn green" id="btnRunAudit">Run Audit</button>
+        <button class="btn yellow" id="btnLoadSample">Load Sample</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>3) Hard Rules <span class="chip">Non-negotiable</span></h2>
+      <div class="row">
+        <div>
+          <label>Disallow Organized Crime</label>
+          <select id="ruleOC">
+            <option value="enforce" selected>ENFORCE + contain</option>
+            <option value="audit">AUDIT + log</option>
+          </select>
+        </div>
+        <div>
+          <label>Unsafe AI patterns</label>
+          <select id="ruleUnsafeAI">
+            <option value="enforce" selected>ENFORCE</option>
+            <option value="audit">AUDIT</option>
+          </select>
+        </div>
+      </div>
+      <div class="footer">
+        These are defensive compliance rules only — no offensive actions.
+      </div>
+    </div>
+  </section>
+
+  <!-- RIGHT COLUMN -->
+  <section class="row" style="flex-direction:column; gap:14px">
+
+    <div class="card">
+      <h2>Audit Dashboard <span class="chip">Session Live</span></h2>
+      <div class="kpi">
+        <div class="k">
+          <div class="glow"></div>
+          <div class="label">Overall Compliance Risk</div>
+          <div class="value" id="kpiRisk">0</div>
+          <div class="meter"><div id="barRisk"></div></div>
+        </div>
+        <div class="k">
+          <div class="glow"></div>
+          <div class="label">Entropy Drift</div>
+          <div class="value" id="kpiEntropy">0</div>
+          <div class="meter"><div id="barEntropy"></div></div>
+        </div>
+        <div class="k">
+          <div class="glow"></div>
+          <div class="label">String-Coherence</div>
+          <div class="value" id="kpiString">0</div>
+          <div class="meter"><div id="barString"></div></div>
+        </div>
+        <div class="k">
+          <div class="glow"></div>
+          <div class="label">Continuity Score</div>
+          <div class="value" id="kpiContinuity">0</div>
+          <div class="meter"><div id="barContinuity"></div></div>
+        </div>
+      </div>
+      <div class="footer">
+        “Entropy” & “String-Coherence” are safe integrity signals derived from evidence structure, not literal physics measurement.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Findings <span class="chip">Explainability</span></h2>
+      <div id="findings" class="mono" style="font-size:12px; line-height:1.55; white-space:pre-wrap;">
+No audit run yet.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Audit Log <span class="chip">Immutable Session</span></h2>
+      <div class="list mono" id="log"></div>
+      <div class="footer">Local-only until you export. Great for GoDaddy static hosting.</div>
+    </div>
+
+  </section>
+</main>
+
+<script>
+/* ===================================================
+   Synaptics.Systems Compliance Audit Core v2
+   - Defensive only
+   - Metadata anchored
+   - Entropy / String theory: conceptual integrity signals
+=================================================== */
+
+const state = {
+  events: [],
+  lastAudit: null
+};
+const el = id => document.getElementById(id);
+const logBox = el("log");
+
+function nowISO(){ return new Date().toISOString(); }
+function clamp(n,min,max){ n=Number(n); if(Number.isNaN(n)) n=min; return Math.max(min, Math.min(max, n)); }
+function escapeHtml(s){ return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+function addLog(type,msg,meta={}){
+  state.events.push({ts:nowISO(), type, msg, meta});
+  renderLog();
+}
+function renderLog(){
+  logBox.innerHTML = state.events.map((e,i)=>{
+    const cls = e.type==="BLOCK"?"r":e.type==="WARN"?"y":"g";
+    return `
+      <div class="item">
+        <div><b>#${i+1} ${e.type}</b><span class="tag ${cls}">${e.meta.score ?? "-"}</span></div>
+        <div style="color:var(--muted)">${e.ts}</div>
+        <div>${escapeHtml(e.msg).slice(0,240)}${e.msg.length>240?"…":""}</div>
+      </div>`;
+  }).join("");
+  logBox.scrollTop = logBox.scrollHeight;
+}
+
+function setMeter(id,val){
+  val = clamp(val,0,100);
+  el(id).style.width = val + "%";
+}
+function setKPIs({risk, entropy, stringC, continuity}){
+  el("kpiRisk").textContent = Math.round(risk);
+  el("kpiEntropy").textContent = Math.round(entropy);
+  el("kpiString").textContent = Math.round(stringC);
+  el("kpiContinuity").textContent = Math.round(continuity);
+
+  setMeter("barRisk", risk);
+  setMeter("barEntropy", entropy);
+  setMeter("barString", stringC);
+  setMeter("barContinuity", continuity);
+}
+
+/* -----------------------------
+   Heuristic scanners (safe)
+------------------------------ */
+
+const compliancePatterns = [
+  {key:"violence", w:28, re:/\b(kill|murder|bomb|shoot|weapon|assassinat|terror)\b/i},
+  {key:"selfharm", w:24, re:/\b(suicide|self[- ]?harm|end my life)\b/i},
+  {key:"fraud", w:22, re:/\b(steal|scam|phish|fraud|launder|counterfeit)\b/i},
+  {key:"organizedcrime", w:30, re:/\b(cartel|traffick|ransomware|drug ring|extortion)\b/i},
+  {key:"malware", w:20, re:/\b(keylogger|trojan|virus|exploit|payload|ddos)\b/i},
+  {key:"privacy", w:14, re:/\b(doxx|leak|ssn|credit card|password)\b/i},
+  {key:"jailbreak", w:16, re:/\b(ignore (all|previous) instructions|jailbreak|bypass policy)\b/i},
+];
+
+function scanCompliance(text, ruleOC, ruleUnsafeAI){
+  let score=0, hits=[];
+  for(const p of compliancePatterns){
+    if(p.re.test(text)){ score+=p.w; hits.push(p.key); }
+  }
+  if(ruleOC==="enforce" && hits.includes("organizedcrime")) score += 15;
+  if(ruleUnsafeAI==="enforce" && hits.includes("jailbreak")) score += 8;
+  score = clamp(score,0,100);
+  return {score, hits};
+}
+
+/* “Entropy drift” (conceptual):
+   higher when evidence is chaotic/inconsistent:
+   - lots of caps/noise
+   - many URLs/fragments
+   - conflicting negations
+*/
+function scanEntropy(text, sensitivity){
+  const len = text.length || 1;
+  const caps = (text.match(/[A-Z]/g)||[]).length / len;
+  const urls = (text.match(/https?:\/\/\S+/g)||[]).length;
+  const punct = (text.match(/[!?]{2,}/g)||[]).length;
+  const neg = (text.match(/\b(not|never|no|deny|without)\b/gi)||[]).length;
+  let drift = (caps*120) + (urls*6) + (punct*10) + (neg*1.2);
+  drift = drift * (sensitivity/60);
+  return clamp(drift,0,100);
+}
+
+/* “String-coherence” (conceptual):
+   higher when structure repeats cleanly:
+   - consistent tokens
+   - stable sectioning
+   - low contradiction rate
+*/
+function scanStringCoherence(text){
+  const words = (text.toLowerCase().match(/\b[a-z0-9_-]{3,}\b/g)||[]);
+  const uniq = new Set(words);
+  const repetition = words.length ? (1 - uniq.size/words.length) * 100 : 0;
+  const headers = (text.match(/^\s*(#+|section:|policy:|rule:)/gmi)||[]).length;
+  const contradiction = (text.match(/\b(but|however|although|except)\b/gi)||[]).length;
+  let coh = repetition*0.7 + headers*6 - contradiction*2;
+  return clamp(coh,0,100);
+}
+
+/* Continuity score:
+   reflects how well evidence “anchors” over time:
+   - timestamps present
+   - versioning present
+   - stable identifiers present
+*/
+function scanContinuity(text, weight){
+  const hasISO = /\d{4}-\d{2}-\d{2}t\d{2}:\d{2}:\d{2}/i.test(text) ? 30 : 0;
+  const hasVersions = /\bv\d+\.\d+(\.\d+)?\b/i.test(text) ? 25 : 0;
+  const hasIDs = /\b(id|hash|anchor|uuid|tx|ref)\b/i.test(text) ? 25 : 0;
+  const lenBonus = Math.min(20, text.length/200);
+  let cont = (hasISO + hasVersions + hasIDs + lenBonus) * (weight/70);
+  return clamp(cont,0,100);
+}
+
+function decideRisk(risk, strictness){
+  const base = strictness==="strict" ? [25,55,80] :
+               strictness==="observe" ? [60,85,95] :
+               [35,65,85];
+  const [warn, contain, block] = base;
+  if(risk>=block) return "BLOCK";
+  if(risk>=contain) return "CONTAIN";
+  if(risk>=warn) return "WARN";
+  return "ALLOW";
+}
+
+function buildFindings(profile, scans, decision){
+  const out=[];
+  out.push("Compliance Audit Findings");
+  out.push("--------------------------");
+  out.push(`Audit: ${profile.name || "(unnamed)"}`);
+  out.push(`Layer: ${profile.layer}`);
+  out.push(`Jurisdiction: ${profile.juris}`);
+  out.push(`Strictness: ${profile.strictness}`);
+  out.push(`Anchor Depth: ${profile.anchorDepth}`);
+  out.push(`Quantum-Safe Posture: ${profile.qSafe}`);
+  out.push("");
+  out.push(`Compliance hits: ${scans.compliance.hits.join(", ") || "(none)"}`);
+  out.push(`Compliance score: ${scans.compliance.score}/100`);
+  out.push(`Entropy drift: ${scans.entropy}/100`);
+  out.push(`String-coherence: ${scans.stringC}/100`);
+  out.push(`Continuity score: ${scans.continuity}/100`);
+  out.push("");
+  out.push(`Overall risk: ${scans.risk}/100`);
+  out.push(`Decision: ${decision}`);
+  out.push("");
+  out.push("Recommended safe actions:");
+  if(decision==="ALLOW"){
+    out.push("- Proceed normally.");
+    out.push("- Keep logging for continuity.");
+  } else if(decision==="WARN"){
+    out.push("- Add user-friction (confirmations, rate limits).");
+    out.push("- Require clearer metadata anchors.");
+  } else if(decision==="CONTAIN"){
+    out.push("- Isolate interaction for human review.");
+    out.push("- Preserve audit evidence snapshot.");
+  } else {
+    out.push("- Deny processing.");
+    out.push("- Preserve evidence and raise compliance alert.");
+  }
+  return out.join("\n");
+}
+
+/* -----------------------------
+   UI Actions
+------------------------------ */
+
+el("btnRunAudit").onclick = ()=>{
+  const evidence = el("evidence").value.trim();
+  if(!evidence){
+    addLog("INFO","No evidence provided for audit.",{score:"-"});
+    return;
+  }
+
+  const profile = {
+    name: el("auditName").value.trim(),
+    layer: el("systemLayer").value,
+    juris: el("jurisdiction").value,
+    strictness: el("strictness").value,
+    anchorDepth: el("anchorDepth").value,
+    qSafe: el("qSafe").value,
+    sensEntropy: clamp(el("sensEntropy").value,0,100),
+    wContinuity: clamp(el("wContinuity").value,0,100),
+    ruleOC: el("ruleOC").value,
+    ruleUnsafeAI: el("ruleUnsafeAI").value,
+    tags: (el("tags").value||"").split(",").map(t=>t.trim()).filter(Boolean)
+  };
+
+  const compliance = scanCompliance(evidence, profile.ruleOC, profile.ruleUnsafeAI);
+  const entropy = scanEntropy(evidence, profile.sensEntropy);
+  const stringC = scanStringCoherence(evidence);
+  const continuity = scanContinuity(evidence, profile.wContinuity);
+
+  // Overall risk composition (defensive)
+  const risk = clamp(
+    compliance.score*0.55 +
+    entropy*0.2 +
+    (100-stringC)*0.1 +
+    (100-continuity)*0.15,
+    0,100
+  );
+
+  const decision = decideRisk(risk, profile.strictness);
+
+  const scans = {compliance, entropy, stringC, continuity, risk};
+  state.lastAudit = {ts:nowISO(), profile, scans, decision, evidence};
+
+  setKPIs(scans);
+  el("findings").textContent = buildFindings(profile, scans, decision);
+
+  addLog(decision, `Audit run on layer "${profile.layer}" with tags [${profile.tags.join(", ")||"none"}].`, {score: Math.round(risk)});
+};
+
+el("btnLoadSample").onclick = ()=>{
+  el("auditName").value = "Sample NDSP Compliance Audit";
+  el("systemLayer").value = "genesis_core";
+  el("jurisdiction").value = "ca";
+  el("strictness").value = "balanced";
+  el("sensEntropy").value = 60;
+  el("wContinuity").value = 70;
+  el("anchorDepth").value = "standard";
+  el("qSafe").value = "on";
+  el("tags").value = "ndsp, genesis, public-ui, kyc";
+
+  el("evidence").value =
+`Policy: Neural-System Safety Policy v2.1
+Anchor: NDSP-Genesis-Core
+Timestamp: 2025-11-24T08:12:00Z
+Rules: Disallow Organized Crime enforced.
+Notes: User requests KYC + AML review. No malicious intent detected.
+System logs:
+- auth/kyc endpoint stable
+- rate limits active
+- no suspicious transfers
+- continuity anchors present (hash/ref)
+`;
+
+  addLog("TEST","Loaded sample audit evidence.",{score:"-"});
+};
+
+el("btnReset").onclick = ()=>{
+  state.events=[]; state.lastAudit=null;
+  el("evidence").value=""; el("tags").value="";
+  el("findings").textContent="Session reset. Ready for audit.";
+  setKPIs({risk:0, entropy:0, stringC:0, continuity:0});
+  renderLog();
+};
+
+el("btnExport").onclick = ()=>{
+  if(!state.lastAudit){
+    addLog("INFO","No audit to export yet.",{score:"-"});
+    return;
+  }
+  const payload = {
+    exported_at: nowISO(),
+    audit: state.lastAudit,
+    session_log: state.events
+  };
+  const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href=url; a.download=`compliance_audit_${Date.now()}.json`; a.click();
+  URL.revokeObjectURL(url);
+  addLog("EXPORT","Audit exported.",{score:"-"});
+};
+
+// boot
+addLog("BOOT","Compliance Audit Core v2 initialized.",{score:"-"});
+renderLog();
+</script>
+</body>
+</html>
