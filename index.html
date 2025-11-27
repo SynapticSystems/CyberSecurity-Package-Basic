@@ -118,7 +118,6 @@
         <a href="ComplianceAuditCore.html">Audit Core</a>
         <a href="AML_Core_Engine.html">AML / CTF</a>
         <a href="NDPS Genesis Core.html">NDSP Genesis</a>
-        <a href="ServerFramework.html">Server Framework</a>
       </nav>
     </div>
   </header>
@@ -137,7 +136,6 @@
           <a class="btn accent" href="ComplianceAuditCore.html">Launch Audit Core</a>
           <a class="btn" href="AML_Core_Engine.html">Launch AML / CTF Console</a>
           <a class="btn" href="NDPS Genesis Core.html">Open NDSP Telemetry</a>
-          <a class="btn" href="ServerFramework.html">Server Framework</a>
         </div>
         <div class="health" id="health"></div>
       </article>
@@ -173,10 +171,6 @@
           <h3>4) NDSP Genesis</h3>
           <p class="muted">Provides read-only telemetry and drift detection anchored to the quantum visual.</p>
         </div>
-        <div class="step">
-          <h3>5) Server Framework</h3>
-          <p class="muted">Blueprint for the defensive service mesh that backs these modules with zero-trust ingress and signed evidence.</p>
-        </div>
       </div>
     </section>
 
@@ -199,13 +193,12 @@
 
   <script>
     (function(){
-        const targets = [
-          {name:"Compliance Core", file:"ComplianceCore.html", desc:"Lock snapshot & local audit"},
-          {name:"Audit Core v2", file:"ComplianceAuditCore.html", desc:"Entropy + policy audits"},
-          {name:"AML / CTF Core", file:"AML_Core_Engine.html", desc:"Risk scoring engine"},
-          {name:"NDSP Genesis", file:"NDPS Genesis Core.html", desc:"Telemetry anchor"},
-          {name:"Server Framework", file:"ServerFramework.html", desc:"Defensive mesh blueprint"}
-        ];
+      const targets = [
+        {name:"Compliance Core", file:"ComplianceCore.html", desc:"Lock snapshot & local audit"},
+        {name:"Audit Core v2", file:"ComplianceAuditCore.html", desc:"Entropy + policy audits"},
+        {name:"AML / CTF Core", file:"AML_Core_Engine.html", desc:"Risk scoring engine"},
+        {name:"NDSP Genesis", file:"NDPS Genesis Core.html", desc:"Telemetry anchor"}
+      ];
       const container = document.getElementById('health');
 
       async function probe(target){

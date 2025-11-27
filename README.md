@@ -15,8 +15,6 @@ Everything runs on the client in local mode by default. You can host this on **G
 
 The new `index.html` file acts as the **Quantum Cybersecurity Stack Hub**, wiring every module together with shared navigation, a quantum anchor visual, and a live readiness probe so you can confirm each HTML surface is available before launching it.
 
-`ServerFramework.html` documents a **zero-trust, defensive-only service mesh** that can back the HTML modules with a gateway, policy orchestrator, signal bus, and encrypted data plane.
-
 ---
 
 ## 1. Features Overview
@@ -96,14 +94,13 @@ Recommended layout for this bundle:
 
 ```text
 synaptics-cybersecurity-core/
- ├─ README.md
- ├─ public/
- │  ├─ index.html
- │  ├─ ComplianceAuditCore.html
- │  ├─ ComplianceCore.html
- │  ├─ AML_Core_Engine.html
-  │  ├─ ServerFramework.html
-  │  ├─ NDSP_Genesis_Core.html
-  │  └─ assets/
-  │     └─ Michael_Rybaltowicz_<[Quantum_anchor]>.jpg
+├─ README.md
+├─ public/
+│  ├─ index.html
+│  ├─ ComplianceAuditCore.html
+│  ├─ ComplianceCore.html
+│  ├─ AML_Core_Engine.html
+│  ├─ NDSP_Genesis_Core.html
+│  └─ assets/
+│     └─ Michael_Rybaltowicz_<[Quantum_anchor]>.jpg
 └─ (optional) package.json
