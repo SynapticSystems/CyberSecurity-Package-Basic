@@ -1,0 +1,33 @@
+{
+  "protocol_name": "NeuroSynapse Discrimination Protocol (NSDP)",
+  "version": "1.1",
+  "core_model": "Pattern-Based Neural Differentiation",
+  "synapse_entropy_model": {
+    "pattern_id": "SHA256(NeuronFiringPattern + Timestamp)",
+    "synaptic_response_curve": "STDP + Hebbian Noise",
+    "signal_variation_entropy": "BASE64(ΔSignal + ΔWeight + ΔResponse)"
+  },
+  "individual_signature_block": {
+    "brainwave_signature": "EEG-Encoded(Alpha, Theta, Gamma, Delta)",
+    "memory_trace_hash": "SHA256(HippocampalPatternID + ThoughtFlow)",
+    "emotion_vector_trace": "EmotionMap(CurrentState + Temporal Drift)",
+    "neuro_phenotype_hash": "SHA512(NeuralGenomeMap + CulturalBias + ResponseLag)"
+  },
+  "discrimination_engine": {
+    "compare_signal_entropy": true,
+    "differentiation_threshold": 0.97,
+    "exclusion_basis": [
+      "SynapticResponseMismatch",
+      "NeuralPatternCollisionFailure",
+      "Cognitive Drift Mismatch"
+    ]
+  },
+  "output_signature": {
+    "neuro_id_hash": "Unique SHA256 signature per brain",
+    "certainty_factor": "0.97+ recommended for exclusion decisions",
+    "adaptive_feedback": "Update threshold if entropy pattern shifts"
+  },
+  "global_accessibility": "Applicable to blockchain and external entities",
+  "privacy_protection": "Partial hashing recommended for public logs",
+  "expires": "Never"
+}
