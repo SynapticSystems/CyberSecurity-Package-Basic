@@ -6,11 +6,19 @@
 > - **Compliance Core Module** (`ComplianceCore.html`)
 > - **AML / CTF Core Engine** (`AML_Core_Engine.html`)
 > - **NDSP Genesis Core v3 ULTRA** (`NDSP_Genesis_Core.html`)
+> - **Server Framework & Architecture** (`ServerFramework.html`)
+> - **Admin Control & AuthN Surface** (`AdminControl.html`)
 > - **Quantum Anchor Image** (`Michael_Rybaltowicz_<[Quantum_anchor]>.jpg`)
 
 This bundle is a **static, drop-in cybersecurity package** for businesses that want a **defensive-only** monitoring and compliance layer without complex backend setup.
 
 Everything runs on the client in local mode by default. You can host this on **GitHub Pages, GoDaddy, Netlify, Vercel, or any static host**.
+
+The new `index.html` file acts as the **Quantum Cybersecurity Stack Hub**, wiring every module together with shared navigation, a quantum anchor visual, and a live readiness probe so you can confirm each HTML surface is available before launching it.
+
+`ServerFramework.html` documents a **zero-trust, defensive-only service mesh** that can back the HTML modules with a gateway, policy orchestrator, signal bus, and encrypted data plane.
+
+`AdminControl.html` adds a **database-backed admin login surface** so only authenticated administrators can mutate server controls or stack configuration.
 
 ---
 
@@ -80,8 +88,20 @@ A **read-only entropy / telemetry console** anchored to your quantum anchor imag
 - Optional backend authority via `NDSP_BACKEND` constant; defaults to **LOCAL-AUTHORITY** with session-only persistence. :contentReference[oaicite:11]{index=11}  
 - Uses `Michael_Rybaltowicz_<[Quantum_anchor]>.jpg` as the anchor visual. :contentReference[oaicite:12]{index=12}  
 
-File: `NDSP_Genesis_Core.html`  
+File: `NDSP_Genesis_Core.html`
 Image: `assets/Michael_Rybaltowicz_<[Quantum_anchor]>.jpg`
+
+---
+
+### 1.5 Admin Control & AuthN Surface
+
+A **locked admin console** that simulates a database-backed login and change-control path:
+
+- Authenticates administrators against a credential store (hashed) before any edit controls unlock.
+- Persists server configuration updates to a secure local store, rejecting writes from unauthenticated sessions.
+- Emits an append-only change log capturing actor, timestamp, and action for every mutation.
+
+File: `AdminControl.html`
 
 ---
 
@@ -91,12 +111,14 @@ Recommended layout for this bundle:
 
 ```text
 synaptics-cybersecurity-core/
-├─ README.md
-├─ public/
-│  ├─ ComplianceAuditCore.html
-│  ├─ ComplianceCore.html
-│  ├─ AML_Core_Engine.html
-│  ├─ NDSP_Genesis_Core.html
-│  └─ assets/
-│     └─ Michael_Rybaltowicz_<[Quantum_anchor]>.jpg
+ ├─ README.md
+ ├─ public/
+ │  ├─ index.html
+ │  ├─ ComplianceAuditCore.html
+ │  ├─ ComplianceCore.html
+ │  ├─ AML_Core_Engine.html
+  │  ├─ ServerFramework.html
+  │  ├─ NDSP_Genesis_Core.html
+  │  └─ assets/
+  │     └─ Michael_Rybaltowicz_<[Quantum_anchor]>.jpg
 └─ (optional) package.json

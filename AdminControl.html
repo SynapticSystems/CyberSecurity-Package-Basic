@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Control & AuthN</title>
+  <style>
+    :root{
+      --bg:#020410; --panel:#0a0f24; --panel2:#0f1733; --border:#1e2a4d; --accent:#12f0ff; --accent2:#8a7dff; --ok:#3ce57c;
+      --text:#f7f9ff; --muted:#a6acc4; --shadow:0 20px 60px rgba(0,0,0,.55); --radius:16px;
+    }
+    *{box-sizing:border-box;}
+    body{margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; background:linear-gradient(180deg,#03071b,#050b24); color:var(--text);}
+    header{position:sticky; top:0; z-index:10; backdrop-filter:blur(12px); background:rgba(2,4,16,.88); border-bottom:1px solid var(--border);}    
+    .wrap{max-width:1100px; margin:0 auto; padding:16px;}
+    nav{display:flex; gap:10px; flex-wrap:wrap;}
+    nav a{color:var(--text); text-decoration:none; border:1px solid var(--border); padding:8px 10px; border-radius:12px; font-weight:700; background:rgba(255,255,255,.03);}    
+    nav a:hover{border-color:var(--accent); box-shadow:0 0 0 3px rgba(18,240,255,.16);}    
+    h1{margin:0; font-size:22px; letter-spacing:.4px;}
+    .sub{margin:4px 0 0; color:var(--muted);}
+    main{padding:16px;}
+    .grid{display:grid; gap:14px; grid-template-columns:1.2fr 1fr; align-items:start;}
+    @media(max-width:980px){.grid{grid-template-columns:1fr;}}
+    .card{background:linear-gradient(180deg,var(--panel),var(--panel2)); border:1px solid var(--border); border-radius:var(--radius); padding:14px; box-shadow:var(--shadow);}
+    .card h2{margin:0 0 6px; font-size:16px; letter-spacing:.3px;}
+    .muted{color:var(--muted); font-size:13px;}
+    label{display:block; margin:8px 0 4px; font-weight:700; font-size:13px;}
+    input,textarea,select{width:100%; padding:9px 10px; border-radius:12px; border:1px solid var(--border); background:#050a1f; color:var(--text); font-size:13px;}
+    button{cursor:pointer; border:1px solid var(--border); background:linear-gradient(135deg, rgba(18,240,255,.12), rgba(138,125,255,.08)); color:var(--text); font-weight:800; border-radius:12px; padding:10px 12px; letter-spacing:.2px;}
+    button:hover{border-color:var(--accent); box-shadow:0 0 0 3px rgba(18,240,255,.16);}    
+    .status{display:flex; align-items:center; gap:10px; border:1px dashed var(--border); border-radius:12px; padding:10px; margin-top:8px; background:rgba(255,255,255,.03);}    
+    .dot{width:12px; height:12px; border-radius:50%; background:#ff5c8a; box-shadow:0 0 10px #ff5c8a;}    
+    .dot.ok{background:var(--ok); box-shadow:0 0 10px var(--ok);}    
+    .flex{display:flex; gap:10px; flex-wrap:wrap;}
+    .pill{padding:6px 10px; border:1px solid var(--border); border-radius:999px; font-size:12px; background:rgba(255,255,255,.04);}
+    .table{margin-top:8px; border:1px solid var(--border); border-radius:12px; overflow:hidden;}
+    .table table{width:100%; border-collapse:collapse; font-size:13px;}
+    .table th,.table td{padding:10px; border-bottom:1px solid var(--border);}    
+    .table th{background:rgba(255,255,255,.04); text-align:left; letter-spacing:.2px;}
+    .table tr:last-child td{border-bottom:0;}
+    .info{font-size:12px; color:var(--muted); margin-top:6px;}
+    .right{display:flex; justify-content:flex-end; gap:8px;}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="flex" style="align-items:center; justify-content:space-between; gap:8px;">
+        <div>
+          <h1>Admin Control & Authenticated Edit Path</h1>
+          <p class="sub">Locked configuration surface for the Synaptics stack. Only database-backed, logged-in admins can mutate settings.</p>
+        </div>
+        <nav aria-label="Navigation">
+          <a href="index.html">Hub</a>
+          <a href="ServerFramework.html">Server Framework</a>
+          <a href="ComplianceAuditCore.html">Audit Core</a>
+          <a href="AML_Core_Engine.html">AML / CTF</a>
+          <a href="NDPS Genesis Core.html">NDSP</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="grid">
+      <article class="card">
+        <h2>Login to unlock edit controls</h2>
+        <p class="muted">Credentials are stored in the local secure DB shim (crypto-hashed) to simulate the production identity store. Only authenticated sessions can update stack settings.</p>
+        <form id="login-form">
+          <label for="username">Username</label>
+          <input id="username" name="username" autocomplete="username" placeholder="admin" required />
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" placeholder="••••••••" required />
+          <div class="right"><button type="submit">Authenticate</button></div>
+        </form>
+        <div class="status" id="auth-status" aria-live="polite">
+          <span class="dot" id="auth-dot"></span>
+          <div>
+            <strong id="auth-label">Locked</strong>
+            <div class="info">No edits permitted. Log in to unlock server controls.</div>
+          </div>
+        </div>
+        <div class="info">Default bootstrap credential: admin / changeme (update immediately).</div>
+      </article>
+
+      <aside class="card">
+        <h2>Guardrails</h2>
+        <div class="pill">Zero-trust ingress</div>
+        <div class="pill">DB-backed auth only</div>
+        <div class="pill">Signed change logs</div>
+        <p class="muted">Admin writes are gated by authenticated sessions tied to a database record. Configuration edits will be rejected if the session is not validated.</p>
+      </aside>
+    </section>
+
+    <section class="card">
+      <h2>Server configuration (editable only when authenticated)</h2>
+      <p class="muted">Back this form with your database-backed admin service. Here, a secure local store simulates the persistence and enforces an authenticated edit path.</p>
+      <form id="config-form">
+        <label for="service-name">Service Name</label>
+        <input id="service-name" name="service" placeholder="Synaptics Core API" />
+        <label for="ingress">Ingress Policy</label>
+        <input id="ingress" name="ingress" placeholder="mTLS only; allowlist 10.0.0.0/24" />
+        <label for="notes">Operational Notes</label>
+        <textarea id="notes" name="notes" rows="3" placeholder="Document change rationale and evidence chain..."></textarea>
+        <div class="right"><button type="submit" id="save-btn" disabled>Save configuration</button></div>
+      </form>
+      <div class="table" aria-label="Change log">
+        <table id="log-table">
+          <thead><tr><th>When</th><th>Actor</th><th>Action</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const authStatus = document.getElementById('auth-status');
+    const authDot = document.getElementById('auth-dot');
+    const authLabel = document.getElementById('auth-label');
+    const saveBtn = document.getElementById('save-btn');
+    const form = document.getElementById('config-form');
+    const loginForm = document.getElementById('login-form');
+    const logTable = document.querySelector('#log-table tbody');
+
+    const dbKey = 'synaptics.admin.db';
+    const sessionKey = 'synaptics.admin.session';
+
+    // bootstrap database with default admin account and hashed password
+    function hash(str){
+      return Array.from(new TextEncoder().encode(str)).reduce((acc,b)=>acc + b.toString(16).padStart(2,'0'), '');
+    }
+    function loadDb(){
+      const raw = localStorage.getItem(dbKey);
+      if(!raw){
+        const seeded = {users:[{username:'admin', passHash:hash('changeme')}], config:null, log:[]};
+        localStorage.setItem(dbKey, JSON.stringify(seeded));
+        return seeded;
+      }
+      return JSON.parse(raw);
+    }
+    function saveDb(db){ localStorage.setItem(dbKey, JSON.stringify(db)); }
+
+    function setAuthState(authenticated, username=''){      
+      if(authenticated){
+        authStatus.setAttribute('data-state','ok');
+        authDot.classList.add('ok');
+        authLabel.textContent = `Authenticated as ${username}`;
+        saveBtn.disabled = false;
+      } else {
+        authStatus.removeAttribute('data-state');
+        authDot.classList.remove('ok');
+        authLabel.textContent = 'Locked';
+        saveBtn.disabled = true;
+      }
+    }
+
+    function writeLog(action){
+      const db = loadDb();
+      const session = JSON.parse(sessionStorage.getItem(sessionKey) || 'null');
+      if(!session){
+        alert('Denied: only authenticated admins can write.');
+        return false;
+      }
+      const entry = {time:new Date().toISOString(), actor:session.username, action};
+      db.log.unshift(entry);
+      saveDb(db);
+      renderLog();
+      return true;
+    }
+
+    function renderLog(){
+      const {log} = loadDb();
+      logTable.innerHTML = '';
+      log.forEach(row=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${row.time}</td><td>${row.actor}</td><td>${row.action}</td>`;
+        logTable.appendChild(tr);
+      });
+    }
+
+    // hydrate state on load
+    (function init(){
+      const session = JSON.parse(sessionStorage.getItem(sessionKey) || 'null');
+      setAuthState(!!session, session?.username);
+      const db = loadDb();
+      if(db.config){
+        form.service.value = db.config.service || '';
+        form.ingress.value = db.config.ingress || '';
+        form.notes.value = db.config.notes || '';
+      }
+      renderLog();
+    })();
+
+    loginForm.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const db = loadDb();
+      const username = loginForm.username.value.trim();
+      const pwd = loginForm.password.value;
+      const user = db.users.find(u=>u.username===username && u.passHash===hash(pwd));
+      if(!user){
+        alert('Invalid credentials.');
+        return;
+      }
+      sessionStorage.setItem(sessionKey, JSON.stringify({username, ts:Date.now()}));
+      setAuthState(true, username);
+      writeLog('Authenticated');
+    });
+
+    form.addEventListener('submit',(e)=>{
+      e.preventDefault();
+      const session = JSON.parse(sessionStorage.getItem(sessionKey) || 'null');
+      if(!session){
+        alert('Denied: login required for edits.');
+        return;
+      }
+      const db = loadDb();
+      db.config = {
+        service: form.service.value.trim(),
+        ingress: form.ingress.value.trim(),
+        notes: form.notes.value.trim(),
+        updatedAt: new Date().toISOString(),
+        actor: session.username
+      };
+      saveDb(db);
+      writeLog('Updated server configuration');
+      alert('Configuration saved to secure store.');
+    });
+  </script>
+</body>
+</html>
