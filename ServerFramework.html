@@ -34,9 +34,6 @@
       background: linear-gradient(180deg, rgba(5,7,21,.92), rgba(5,7,21,.75));
       border-bottom:1px solid var(--border);
     }
-    .session-banner{display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border:1px solid var(--border); border-radius:12px; background:rgba(255,255,255,.03); font-size:12px; margin-top:8px;}
-    .dot{width:10px; height:10px; border-radius:50%; background:#ff4d6d; box-shadow:0 0 10px #ff4d6d;}
-    .dot.ok{background:var(--accent3); box-shadow:0 0 10px var(--accent3);}
     .wrap{max-width:1200px; margin:0 auto; padding:16px;}
     .brand{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
     .logo{width:46px; height:46px; border-radius:14px; background:
@@ -90,45 +87,15 @@
     code{font-family:"SFMono-Regular",Menlo,Consolas,monospace; font-size:12px; background:rgba(0,0,0,.25); padding:3px 6px; border-radius:8px; display:block; margin:6px 0;}
     .list{margin:0; padding-left:16px; color:var(--muted); font-size:13px;}
     footer{padding:18px 16px 26px; color:var(--muted); font-size:12px; text-align:center;}
-    /* login overlay */
-    .overlay{position:fixed; inset:0; background:rgba(3,5,19,.92); backdrop-filter:blur(10px); display:flex; align-items:center; justify-content:center; z-index:20;}
-    .overlay .panel{background:linear-gradient(180deg,var(--panel),var(--panel2)); border:1px solid var(--border); border-radius:18px; padding:18px; box-shadow:var(--shadow); width:min(420px,90%);}
-    .overlay label{display:block; margin:10px 0 4px; font-weight:700; font-size:13px;}
-    .overlay input{width:100%; padding:10px; border-radius:12px; border:1px solid var(--border); background:#050a1f; color:var(--text); font-size:14px;}
-    .overlay button{margin-top:12px; width:100%; cursor:pointer; border:1px solid var(--border); background:linear-gradient(135deg, rgba(18,240,255,.14), rgba(138,125,255,.08)); color:var(--text); font-weight:800; border-radius:12px; padding:10px 12px; letter-spacing:.2px;}
-    .overlay small{color:var(--muted); display:block; margin-top:6px;}
-    .hidden{display:none;}
   </style>
 </head>
 <body>
-  <div class="overlay" id="login-overlay" role="dialog" aria-modal="true" aria-labelledby="overlay-title">
-    <div class="panel">
-      <div class="badge-row" style="margin:0 0 6px;">
-        <span class="pill c">Server session lock</span>
-        <span class="pill g">DB-backed auth</span>
-      </div>
-      <h2 id="overlay-title" style="margin:0 0 4px;">Authenticate to open server session</h2>
-      <p class="muted" style="margin:0 0 10px;">This page requires a logged-in admin before exposing the framework and control signals. Credentials are validated against the seeded database shim.</p>
-      <form id="overlay-form">
-        <label for="overlay-username">Username</label>
-        <input id="overlay-username" name="username" autocomplete="username" placeholder="admin" required />
-        <label for="overlay-password">Password</label>
-        <input id="overlay-password" name="password" type="password" autocomplete="current-password" placeholder="••••••••" required />
-        <button type="submit">Unlock server session</button>
-      </form>
-      <small>Default bootstrap credential: admin / changeme (update in Admin Control).</small>
-    </div>
-  </div>
   <header>
     <div class="wrap brand">
       <div class="logo"></div>
       <div>
         <h1>Server Framework & Architecture</h1>
         <p class="sub">Defensive-only, quantum-anchored services that orchestrate Compliance, AML/CTF, NDSP telemetry, and audit evidence pipelines.</p>
-        <div class="session-banner" id="session-banner" aria-live="polite">
-          <span class="dot" id="session-dot"></span>
-          <span id="session-label">Session locked — login required</span>
-        </div>
       </div>
       <nav aria-label="Suite navigation">
         <a href="index.html">Suite Hub</a>
@@ -136,7 +103,6 @@
         <a href="ComplianceAuditCore.html">Audit Core</a>
         <a href="AML_Core_Engine.html">AML / CTF</a>
         <a href="NDPS Genesis Core.html">NDSP Genesis</a>
-        <a href="AdminControl.html">Admin Control</a>
       </nav>
     </div>
   </header>
@@ -226,38 +192,6 @@
     </section>
 
     <section class="card" style="grid-column:1 / -1;">
-      <h2>Admin Authentication & Storage</h2>
-      <div class="badge-row">
-        <span class="pill c">DB-only mutations</span>
-        <span class="pill g">Signed change log</span>
-        <span class="pill v">Role-scoped access</span>
-      </div>
-      <p class="muted">All configuration writes run through an admin login service backed by the database. Non-authenticated requests are rejected before reaching any control plane, ensuring only verified administrators can edit systems.</p>
-      <div class="flow" aria-label="Admin flow">
-        <div class="flow-step">
-          <strong>1) Admin Portal</strong>
-          <p class="muted">Login UI (see <a href="AdminControl.html">Admin Control</a>) posts to <code>/api/admin/login</code>, hashing credentials and issuing signed sessions.</p>
-        </div>
-        <div class="flow-step">
-          <strong>2) AuthZ Guard</strong>
-          <p class="muted">Gateway enforces session validity + role claims, denying any mutation call without a verified database record.</p>
-        </div>
-        <div class="flow-step">
-          <strong>3) Config Store</strong>
-          <p class="muted">Writes land in an encrypted configuration table with per-row signatures; append-only change log is emitted to the signal bus.</p>
-        </div>
-        <div class="flow-step">
-          <strong>4) Evidence Chain</strong>
-          <p class="muted">Every accepted change is hash-linked to Audit Core for downstream verification and rollback safety.</p>
-        </div>
-      </div>
-      <div class="callout">
-        <strong>Implementation notes:</strong>
-        <span class="muted">Back the portal with a real database (PostgreSQL, MySQL, etc.), store password hashes (Argon2/scrypt), and enforce short-lived sessions with HttpOnly, Secure cookies. No unauthenticated route should mutate the system.</span>
-      </div>
-    </section>
-
-    <section class="card" style="grid-column:1 / -1;">
       <h2>API Skeleton</h2>
       <p class="muted">Bootstrap a defensive API surface with predictable routes and JSON schemas. Replace handlers with your runtime of choice (Node, Go, Python) but keep the contract stable.</p>
       <code aria-label="API skeleton">POST /api/compliance/locks    -> validate payload, return {status, locks, evidenceId}
@@ -274,60 +208,5 @@ GET  /api/ndsp/telemetry     -> read-only drift + health snapshots, never mutati
   <footer>
     Synaptics.Systems — Server framework blueprint for the quantum-grade defensive stack.
   </footer>
-
-  <script>
-    const overlay = document.getElementById('login-overlay');
-    const overlayForm = document.getElementById('overlay-form');
-    const sessionBanner = document.getElementById('session-banner');
-    const sessionDot = document.getElementById('session-dot');
-    const sessionLabel = document.getElementById('session-label');
-
-    const dbKey = 'synaptics.admin.db';
-    const sessionKey = 'synaptics.admin.session';
-
-    function hash(str){
-      return Array.from(new TextEncoder().encode(str)).reduce((acc,b)=>acc + b.toString(16).padStart(2,'0'), '');
-    }
-    function loadDb(){
-      const raw = localStorage.getItem(dbKey);
-      if(!raw){
-        const seeded = {users:[{username:'admin', passHash:hash('changeme')}], config:null, log:[]};
-        localStorage.setItem(dbKey, JSON.stringify(seeded));
-        return seeded;
-      }
-      return JSON.parse(raw);
-    }
-    function setSessionState(authed, username=''){
-      if(authed){
-        overlay.classList.add('hidden');
-        sessionDot.classList.add('ok');
-        sessionLabel.textContent = `Server session unlocked — ${username}`;
-      } else {
-        overlay.classList.remove('hidden');
-        sessionDot.classList.remove('ok');
-        sessionLabel.textContent = 'Session locked — login required';
-      }
-    }
-
-    (function init(){
-      loadDb();
-      const session = JSON.parse(sessionStorage.getItem(sessionKey) || 'null');
-      setSessionState(!!session, session?.username);
-    })();
-
-    overlayForm.addEventListener('submit',(e)=>{
-      e.preventDefault();
-      const db = loadDb();
-      const username = overlayForm.username.value.trim();
-      const pwd = overlayForm.password.value;
-      const user = db.users.find(u=>u.username===username && u.passHash===hash(pwd));
-      if(!user){
-        alert('Invalid credentials. Use your Admin Control login.');
-        return;
-      }
-      sessionStorage.setItem(sessionKey, JSON.stringify({username, ts:Date.now()}));
-      setSessionState(true, username);
-    });
-  </script>
 </body>
 </html>
