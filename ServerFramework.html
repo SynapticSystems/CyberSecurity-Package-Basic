@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Synaptics.Systems — Server Framework & Architecture</title>
+  <style>
+    :root{
+      --bg:#050715;
+      --panel:#0b1028;
+      --panel2:#0f1735;
+      --border:#1f2a52;
+      --accent:#12f0ff;
+      --accent2:#8a7dff;
+      --accent3:#3ce57c;
+      --text:#f5f7ff;
+      --muted:#a1a7c4;
+      --shadow:0 18px 60px rgba(0,0,0,.55);
+      --radius:16px;
+    }
+    *{box-sizing:border-box;}
+    body{
+      margin:0; color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:
+        radial-gradient(1100px 800px at 90% -10%, rgba(18,240,255,.15), transparent 55%),
+        radial-gradient(1200px 800px at 8% 8%, rgba(138,125,255,.12), transparent 60%),
+        linear-gradient(180deg,var(--bg),#040615 28%, var(--panel2));
+      min-height:100vh;
+    }
+    header{
+      position:sticky; top:0; z-index:10;
+      backdrop-filter: blur(10px);
+      background: linear-gradient(180deg, rgba(5,7,21,.92), rgba(5,7,21,.75));
+      border-bottom:1px solid var(--border);
+    }
+    .wrap{max-width:1200px; margin:0 auto; padding:16px;}
+    .brand{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+    .logo{width:46px; height:46px; border-radius:14px; background:
+      radial-gradient(circle at 25% 25%, #fff, transparent 38%),
+      conic-gradient(from 130deg, var(--accent), var(--accent2), var(--accent));
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:0 0 24px rgba(18,240,255,.35);
+    }
+    h1{margin:0; font-size:22px; letter-spacing:.4px;}
+    .sub{margin:2px 0 0; color:var(--muted); font-size:13px; max-width:760px;}
+    nav{display:flex; gap:10px; flex-wrap:wrap; margin-left:auto;}
+    nav a{
+      text-decoration:none; color:var(--text);
+      border:1px solid var(--border);
+      padding:8px 10px; border-radius:12px;
+      background:rgba(255,255,255,.03);
+      font-weight:700; font-size:13px;
+      transition:.18s ease;
+    }
+    nav a:hover{border-color:var(--accent); box-shadow:0 0 0 3px rgba(18,240,255,.16);}
+    main{padding:16px; display:grid; gap:14px; grid-template-columns:1.2fr 1fr;}
+    @media (max-width:1080px){main{grid-template-columns:1fr;}}
+    .card{
+      background:linear-gradient(180deg,var(--panel),var(--panel2));
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:14px;
+      box-shadow:var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+    .card::after{
+      content:""; position:absolute; inset:-50% -30% auto auto; width:320px; height:320px;
+      background:radial-gradient(circle, rgba(18,240,255,.14), transparent 60%);
+      filter:blur(6px); opacity:.8;
+    }
+    .card h2{margin:0 0 6px; font-size:16px; letter-spacing:.3px;}
+    .muted{color:var(--muted); font-size:13px;}
+    .badge-row{display:flex; gap:6px; flex-wrap:wrap; margin:8px 0 12px;}
+    .pill{display:inline-flex; align-items:center; gap:6px; padding:5px 9px; border-radius:999px;
+      border:1px solid var(--border); background:rgba(255,255,255,.04); font-size:12px; margin-right:6px;}
+    .pill.c{border-color:rgba(18,240,255,.35); color:#d7fbff;}
+    .pill.g{border-color:rgba(60,229,124,.35); color:#d6ffe7;}
+    .pill.v{border-color:rgba(138,125,255,.35); color:#efe6ff;}
+    .diagram{display:grid; gap:10px; grid-template-columns:repeat(auto-fit,minmax(220px,1fr));}
+    .box{border:1px solid var(--border); border-radius:14px; padding:10px; background:rgba(255,255,255,.02); position:relative;}
+    .box strong{display:block; margin-bottom:4px;}
+    .flow{display:grid; gap:10px; grid-template-columns:repeat(auto-fit,minmax(260px,1fr));}
+    .flow-step{border:1px dashed var(--border); border-radius:14px; padding:10px; background:rgba(255,255,255,.02);}
+    .callout{border:1px solid var(--border); border-radius:14px; padding:12px; background:rgba(255,255,255,.03); margin-top:10px;}
+    code{font-family:"SFMono-Regular",Menlo,Consolas,monospace; font-size:12px; background:rgba(0,0,0,.25); padding:3px 6px; border-radius:8px; display:block; margin:6px 0;}
+    .list{margin:0; padding-left:16px; color:var(--muted); font-size:13px;}
+    footer{padding:18px 16px 26px; color:var(--muted); font-size:12px; text-align:center;}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap brand">
+      <div class="logo"></div>
+      <div>
+        <h1>Server Framework & Architecture</h1>
+        <p class="sub">Defensive-only, quantum-anchored services that orchestrate Compliance, AML/CTF, NDSP telemetry, and audit evidence pipelines.</p>
+      </div>
+      <nav aria-label="Suite navigation">
+        <a href="index.html">Suite Hub</a>
+        <a href="ComplianceCore.html">Compliance Core</a>
+        <a href="ComplianceAuditCore.html">Audit Core</a>
+        <a href="AML_Core_Engine.html">AML / CTF</a>
+        <a href="NDPS Genesis Core.html">NDSP Genesis</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="card">
+      <h2>Service Plane</h2>
+      <div class="badge-row">
+        <span class="pill c">Zero trust ingress</span>
+        <span class="pill g">Data-boundary locks</span>
+        <span class="pill v">Future-proof API</span>
+      </div>
+      <p class="muted">Use these layers as a reference to back the existing HTML surfaces with a hardened service mesh. Each component is defensive-only: no unsolicited outbound traffic, and every call carries compliance locks plus audit trails.</p>
+      <div class="diagram" aria-label="Service layout">
+        <div class="box">
+          <strong>Edge Gateway</strong>
+          <span class="muted">mTLS + JWT, rate limits, geo/IP allowlists</span>
+          <ul class="list">
+            <li>Terminates TLS 1.3</li>
+            <li>Injects request IDs & traceparent</li>
+            <li>Routes to internal mesh only</li>
+          </ul>
+        </div>
+        <div class="box">
+          <strong>Policy Orchestrator</strong>
+          <span class="muted">Wraps requests with Compliance Core locks</span>
+          <ul class="list">
+            <li>Policy bundles signed + versioned</li>
+            <li>Denies non-compliant payloads pre-ingest</li>
+            <li>Feeds violations to Audit Core</li>
+          </ul>
+        </div>
+        <div class="box">
+          <strong>Signal Bus</strong>
+          <span class="muted">Event backbone with replay-safe streams</span>
+          <ul class="list">
+            <li>Append-only topics for AML, NDSP</li>
+            <li>Hash-linked ledgers for investigations</li>
+            <li>Fan-out to analytics / cold storage</li>
+          </ul>
+        </div>
+        <div class="box">
+          <strong>Data Plane</strong>
+          <span class="muted">Encrypted stores and tokenized secrets</span>
+          <ul class="list">
+            <li>Row-level encryption with quantum-safe KDF</li>
+            <li>Vaulted credentials; short-lived leases</li>
+            <li>Immutable audit evidence store</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout">
+        <strong>Deployment hint:</strong>
+        <span class="muted">Isolate Edge Gateway in a DMZ, run Policy Orchestrator and Signal Bus on a private network segment, and keep the Data Plane behind a dedicated bastion with hardware-backed keys.</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Request Flow & UX Touchpoints</h2>
+      <div class="badge-row">
+        <span class="pill c">Traceable UX</span>
+        <span class="pill g">Read-only defaults</span>
+        <span class="pill v">Composable widgets</span>
+      </div>
+      <div class="flow" aria-label="Request flow">
+        <div class="flow-step">
+          <strong>1) UI Client</strong>
+          <p class="muted">HTML modules call <code>/api/compliance/locks</code>, <code>/api/audit/run</code>, <code>/api/aml/score</code>, and <code>/api/ndsp/telemetry</code> through the Edge Gateway.</p>
+        </div>
+        <div class="flow-step">
+          <strong>2) Gateway Guards</strong>
+          <p class="muted">mTLS + JWT validation, rate limits, geo fences. Attaches <code>X-Request-ID</code> and <code>traceparent</code> to every call.</p>
+        </div>
+        <div class="flow-step">
+          <strong>3) Policy Orchestrator</strong>
+          <p class="muted">Loads the Compliance Core bundle, enforces anti-crime and non-intrusion locks, then forwards to the right microservice if checks pass.</p>
+        </div>
+        <div class="flow-step">
+          <strong>4) Domain Services</strong>
+          <p class="muted">Dedicated pods: <em>audit-service</em>, <em>aml-service</em>, <em>telemetry-service</em>. Each emits evidence to the Audit Core ledger and the Signal Bus.</p>
+        </div>
+      </div>
+      <div class="callout">
+        <strong>UX guidance:</strong>
+        <span class="muted">Keep UI states tied to server signals: show gateway verdicts, policy enforcement notes, and evidence IDs inline. Favor read-only previews first, with explicit opt-in buttons for mutating actions.</span>
+      </div>
+    </section>
+
+    <section class="card" style="grid-column:1 / -1;">
+      <h2>API Skeleton</h2>
+      <p class="muted">Bootstrap a defensive API surface with predictable routes and JSON schemas. Replace handlers with your runtime of choice (Node, Go, Python) but keep the contract stable.</p>
+      <code aria-label="API skeleton">POST /api/compliance/locks    -> validate payload, return {status, locks, evidenceId}
+POST /api/audit/run          -> run audit, stream hash chain to ledger, return signed result
+POST /api/aml/score          -> score entity/transaction, return verdict + reasons + evidenceId
+GET  /api/ndsp/telemetry     -> read-only drift + health snapshots, never mutating</code>
+      <div class="callout">
+        <strong>Evidence pattern:</strong>
+        <span class="muted">Every POST writes an immutable record to the Audit Core evidence store via the Signal Bus. Use request IDs and hash-linked entries so UI screens can deep-link to signed receipts.</span>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Synaptics.Systems — Server framework blueprint for the quantum-grade defensive stack.
+  </footer>
+</body>
+</html>

@@ -6,6 +6,7 @@
 > - **Compliance Core Module** (`ComplianceCore.html`)
 > - **AML / CTF Core Engine** (`AML_Core_Engine.html`)
 > - **NDSP Genesis Core v3 ULTRA** (`NDSP_Genesis_Core.html`)
+> - **Server Framework & Architecture** (`ServerFramework.html`)
 > - **Quantum Anchor Image** (`Michael_Rybaltowicz_<[Quantum_anchor]>.jpg`)
 
 This bundle is a **static, drop-in cybersecurity package** for businesses that want a **defensive-only** monitoring and compliance layer without complex backend setup.
