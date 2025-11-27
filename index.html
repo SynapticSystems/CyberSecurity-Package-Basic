@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Synaptics.Systems — Quantum Cybersecurity Stack</title>
+  <style>
+    :root{
+      --bg:#030513;
+      --bg2:#050822;
+      --panel:#0a0f26;
+      --panel2:#0e1533;
+      --border:#1b254a;
+      --border-soft:#2a3560;
+      --accent:#12f0ff;
+      --accent2:#8a7dff;
+      --accent3:#3ce57c;
+      --text:#f5f7ff;
+      --muted:#a1a7c4;
+      --shadow:0 18px 60px rgba(0,0,0,.55);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:
+        radial-gradient(1100px 700px at 90% -10%, rgba(18,240,255,.16), transparent 55%),
+        radial-gradient(1200px 800px at 8% 8%, rgba(138,125,255,.12), transparent 60%),
+        linear-gradient(180deg,var(--bg),var(--bg2));
+      min-height:100vh;
+    }
+    header{
+      position:sticky; top:0; z-index:10;
+      backdrop-filter: blur(10px);
+      background: linear-gradient(180deg, rgba(3,5,19,.92), rgba(3,5,19,.75));
+      border-bottom:1px solid var(--border);
+    }
+    .wrap{max-width:1250px; margin:0 auto; padding:16px;}
+    .brand{display:flex; gap:12px; align-items:center; flex-wrap:wrap;}
+    .logo{width:46px; height:46px; border-radius:14px; background:
+      radial-gradient(circle at 25% 25%, #fff, transparent 38%),
+      conic-gradient(from 130deg, var(--accent), var(--accent2), var(--accent));
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:0 0 24px rgba(18,240,255,.35);
+    }
+    h1{margin:0; font-size:22px; letter-spacing:.5px;}
+    .sub{margin:2px 0 0; color:var(--muted); font-size:13px; max-width:840px;}
+    nav{display:flex; gap:10px; flex-wrap:wrap; margin-left:auto;}
+    nav a{
+      text-decoration:none; color:var(--text);
+      border:1px solid var(--border);
+      padding:8px 10px; border-radius:12px;
+      background:rgba(255,255,255,.03);
+      font-weight:700; font-size:13px;
+      transition:.18s ease;
+    }
+    nav a:hover{border-color:var(--accent); box-shadow:0 0 0 3px rgba(18,240,255,.16);}
+    main{padding:16px;}
+    .grid{display:grid; gap:14px; grid-template-columns:2fr 1.1fr;}
+    @media (max-width:1050px){.grid{grid-template-columns:1fr}}
+    .card{
+      background:linear-gradient(180deg,var(--panel),var(--panel2));
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:14px;
+      box-shadow:var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+    .card::after{
+      content:""; position:absolute; inset:-50% -30% auto auto; width:320px; height:320px;
+      background:radial-gradient(circle, rgba(18,240,255,.16), transparent 60%);
+      filter:blur(6px); opacity:.8;
+    }
+    .card h2{margin:0 0 6px; font-size:16px; letter-spacing:.4px;}
+    .muted{color:var(--muted); font-size:13px;}
+    .pill{display:inline-flex; align-items:center; gap:6px; padding:5px 9px; border-radius:999px;
+      border:1px solid var(--border); background:rgba(255,255,255,.04); font-size:12px; margin-right:6px;}
+    .pill.g{border-color:rgba(60,229,124,.35); color:#d6ffe7;}
+    .pill.c{border-color:rgba(18,240,255,.35); color:#d7fbff;}
+    .pill.v{border-color:rgba(138,125,255,.35); color:#efe6ff;}
+    .badge-row{display:flex; gap:6px; flex-wrap:wrap; margin:8px 0;}
+    .actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;}
+    .btn{appearance:none; cursor:pointer; text-decoration:none;
+      border:1px solid var(--border); color:var(--text); background:#0a1230;
+      padding:9px 12px; border-radius:12px; font-weight:800; letter-spacing:.2px; font-size:13px;
+      transition:.16s ease;
+    }
+    .btn:hover{transform:translateY(-1px); border-color:var(--accent); box-shadow:0 0 0 3px rgba(18,240,255,.16);} 
+    .btn.accent{background:linear-gradient(135deg, rgba(18,240,255,.16), rgba(18,240,255,.05));}
+    .stack-map{display:grid; gap:10px; grid-template-columns:repeat(auto-fit,minmax(220px,1fr));}
+    .step{border:1px dashed var(--border); border-radius:14px; padding:10px; background:rgba(255,255,255,.02);}
+    .step h3{margin:0 0 6px; font-size:14px; letter-spacing:.3px;}
+    .health{display:grid; gap:10px; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); margin-top:8px;}
+    .health .row{display:flex; align-items:center; gap:8px;}
+    .dot{width:12px; height:12px; border-radius:50%; background:var(--accent3); box-shadow:0 0 10px var(--accent3);} 
+    .dot.bad{background:#ff4d6d; box-shadow:0 0 10px #ff4d6d;}
+    .status{display:flex; align-items:center; gap:8px; justify-content:space-between; border:1px solid var(--border); border-radius:12px; padding:9px 10px; background:rgba(255,255,255,.03);}
+    .status small{color:var(--muted);}
+    .preview{border:1px solid var(--border); border-radius:14px; overflow:hidden; box-shadow:var(--shadow); background:#060a1d; margin-top:8px;}
+    iframe{border:0; width:100%; height:340px; background:#02030a;}
+    .anchor-img{width:100%; border-radius:14px; border:1px solid var(--border); box-shadow:var(--shadow); object-fit:cover; max-height:360px;}
+    footer{padding:18px 16px 30px; color:var(--muted); font-size:12px; text-align:center;}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap brand">
+      <div class="logo"></div>
+      <div>
+        <h1>Synaptics.Systems Quantum Cybersecurity Stack</h1>
+        <p class="sub">Single-pane integration of Compliance, AML/CTF, NDSP telemetry, and quantum anchor hardening — future-proofed for defensive-only deployments.</p>
+      </div>
+      <nav aria-label="Module navigation">
+        <a href="#stack-map">Stack Map</a>
+        <a href="ComplianceCore.html">Compliance Core</a>
+        <a href="ComplianceAuditCore.html">Audit Core</a>
+        <a href="AML_Core_Engine.html">AML / CTF</a>
+        <a href="NDPS Genesis Core.html">NDSP Genesis</a>
+        <a href="ServerFramework.html">Server Framework</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="grid">
+      <article class="card">
+        <h2>Unified Control Plane</h2>
+        <div class="badge-row">
+          <span class="pill c">Quantum-anchored</span>
+          <span class="pill g">Defensive-only</span>
+          <span class="pill v">Future-ready</span>
+        </div>
+        <p class="muted">All four HTML modules now ship as an integrated, layered stack. Launch from this hub, run local audits, and keep every control in local-only mode unless you opt-in to a backend.</p>
+        <div class="actions">
+          <a class="btn accent" href="ComplianceAuditCore.html">Launch Audit Core</a>
+          <a class="btn" href="AML_Core_Engine.html">Launch AML / CTF Console</a>
+          <a class="btn" href="NDPS Genesis Core.html">Open NDSP Telemetry</a>
+          <a class="btn" href="ServerFramework.html">Server Framework</a>
+        </div>
+        <div class="health" id="health"></div>
+      </article>
+
+      <aside class="card">
+        <h2>Quantum Anchor</h2>
+        <p class="muted">Trust boundary visual used across modules. Replace with your own anchor to propagate a new entropy baseline.</p>
+        <img src="System_Admin_<[Quantum_anchor]> copy.jpg" alt="Synaptics quantum anchor marble" class="anchor-img" />
+        <div class="badge-row">
+          <span class="pill c">Anchor ready</span>
+          <span class="pill g">Local-only by default</span>
+        </div>
+      </aside>
+    </section>
+
+    <section id="stack-map" class="card">
+      <h2>Stack Wiring</h2>
+      <p class="muted">Each layer is wired to reinforce the others. Compliance locks sit in front, AML/CTF governs money movement, NDSP detects drift, and Audit Core exports a hash-linked dossier.</p>
+      <div class="stack-map">
+        <div class="step">
+          <h3>1) Compliance Core</h3>
+          <p class="muted">Engages regulation, data-boundary, non-intrusion, and anti-crime locks for every downstream module.</p>
+        </div>
+        <div class="step">
+          <h3>2) Audit Core v2</h3>
+          <p class="muted">Runs entropy + policy audits on configs, prompts, or logs with exportable JSON artifacts.</p>
+        </div>
+        <div class="step">
+          <h3>3) AML / CTF Core</h3>
+          <p class="muted">Risk-scores users and transactions, producing PASS / REVIEW / BLOCK outcomes with chain-of-custody logs.</p>
+        </div>
+        <div class="step">
+          <h3>4) NDSP Genesis</h3>
+          <p class="muted">Provides read-only telemetry and drift detection anchored to the quantum visual.</p>
+        </div>
+        <div class="step">
+          <h3>5) Server Framework</h3>
+          <p class="muted">Blueprint for the defensive service mesh that backs these modules with zero-trust ingress and signed evidence.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Embedded Compliance Core</h2>
+      <p class="muted">Use the embedded preview for quick lock checks. Open the dedicated page for full-screen operations or to embed in your own app shell.</p>
+      <div class="preview" aria-label="Compliance Core preview">
+        <iframe title="Compliance Core preview" src="ComplianceCore.html"></iframe>
+      </div>
+      <div class="actions">
+        <a class="btn" href="ComplianceCore.html" target="_blank" rel="noopener">Open in new tab</a>
+        <a class="btn" href="ComplianceAuditCore.html" target="_blank" rel="noopener">Run full audit</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Synaptics.Systems — Quantum-grade, future-proof defensive stack. All modules run locally unless you add your own backend.
+  </footer>
+
+  <script>
+    (function(){
+        const targets = [
+          {name:"Compliance Core", file:"ComplianceCore.html", desc:"Lock snapshot & local audit"},
+          {name:"Audit Core v2", file:"ComplianceAuditCore.html", desc:"Entropy + policy audits"},
+          {name:"AML / CTF Core", file:"AML_Core_Engine.html", desc:"Risk scoring engine"},
+          {name:"NDSP Genesis", file:"NDPS Genesis Core.html", desc:"Telemetry anchor"},
+          {name:"Server Framework", file:"ServerFramework.html", desc:"Defensive mesh blueprint"}
+        ];
+      const container = document.getElementById('health');
+
+      async function probe(target){
+        const row = document.createElement('div');
+        row.className = 'status';
+        row.innerHTML = `<div class="row"><span class="dot"></span><div><strong>${target.name}</strong><div class="muted">${target.desc}</div></div></div><small>checking...</small>`;
+        container.appendChild(row);
+
+        try {
+          const res = await fetch(target.file, {cache:'no-store'});
+          if(res.ok){
+            row.querySelector('small').textContent = 'ready';
+          } else {
+            row.querySelector('.dot').classList.add('bad');
+            row.querySelector('small').textContent = `unreachable (${res.status})`;
+          }
+        } catch (err){
+          row.querySelector('.dot').classList.add('bad');
+          row.querySelector('small').textContent = 'unreachable';
+        }
+      }
+
+      targets.forEach(probe);
+    })();
+  </script>
+</body>
+</html>
