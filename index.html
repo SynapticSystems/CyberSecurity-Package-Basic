@@ -186,6 +186,12 @@
         <a class="btn" href="ComplianceAuditCore.html" target="_blank" rel="noopener">Run full audit</a>
       </div>
     </section>
+
+    <section class="card">
+      <h2>Interconnect Status</h2>
+      <p class="muted">Cross-module snapshot pulled from shared storage: active auth session, seeded users, vault records from the Login console, and Admin configuration state.</p>
+      <div class="health" id="interop"></div>
+    </section>
   </main>
 
   <footer>
@@ -223,6 +229,47 @@
       }
 
       targets.forEach(probe);
+
+      function renderInterop(){
+        const grid = document.getElementById('interop');
+        if(!grid) return;
+        const session = JSON.parse(sessionStorage.getItem('synaptics.session') || 'null');
+        const users = JSON.parse(localStorage.getItem('synaptics.auth.users') || '[]');
+        const vault = JSON.parse(localStorage.getItem('synaptics.server.vault') || '[]');
+        const adminDb = JSON.parse(localStorage.getItem('synaptics.admin.db') || '{}');
+        const blocks = [
+          {
+            label:'Auth session',
+            ok:!!session,
+            detail: session ? `${session.username} (${session.scope||'session'})` : 'Locked — login first'
+          },
+          {
+            label:'Seeded users',
+            ok:users.length>0,
+            detail:`${users.length} account(s) in shared store`
+          },
+          {
+            label:'Vault records',
+            ok:vault.length>0,
+            detail:vault.length>0 ? `${vault.length} stored; latest ${new Date(vault[vault.length-1].createdAt).toLocaleString()}` : 'Empty until a session writes'
+          },
+          {
+            label:'Admin config',
+            ok:!!adminDb.config,
+            detail:adminDb.config ? `Updated by ${adminDb.config.actor || 'unknown'} at ${adminDb.config.updatedAt}` : 'Not saved yet'
+          }
+        ];
+        grid.innerHTML = '';
+        blocks.forEach(block=>{
+          const row = document.createElement('div');
+          row.className = 'status';
+          const dotClass = block.ok ? 'dot' : 'dot bad';
+          row.innerHTML = `<div class="row"><span class="${dotClass}"></span><div><strong>${block.label}</strong><div class="muted">${block.detail}</div></div></div><small>${block.ok ? 'linked' : 'awaiting'}</small>`;
+          grid.appendChild(row);
+        });
+      }
+
+      renderInterop();
     })();
   </script>
 </body>
