@@ -12,6 +12,8 @@ This bundle is a **static, drop-in cybersecurity package** for businesses that w
 
 Everything runs on the client in local mode by default. You can host this on **GitHub Pages, GoDaddy, Netlify, Vercel, or any static host**.
 
+The new `index.html` file acts as the **Quantum Cybersecurity Stack Hub**, wiring every module together with shared navigation, a quantum anchor visual, and a live readiness probe so you can confirm each HTML surface is available before launching it.
+
 ---
 
 ## 1. Features Overview
@@ -93,6 +95,7 @@ Recommended layout for this bundle:
 synaptics-cybersecurity-core/
 ├─ README.md
 ├─ public/
+│  ├─ index.html
 │  ├─ ComplianceAuditCore.html
 │  ├─ ComplianceCore.html
 │  ├─ AML_Core_Engine.html
