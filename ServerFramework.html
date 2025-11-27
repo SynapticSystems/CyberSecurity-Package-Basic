@@ -103,7 +103,6 @@
         <a href="ComplianceAuditCore.html">Audit Core</a>
         <a href="AML_Core_Engine.html">AML / CTF</a>
         <a href="NDPS Genesis Core.html">NDSP Genesis</a>
-        <a href="AdminControl.html">Admin Control</a>
       </nav>
     </div>
   </header>
@@ -189,38 +188,6 @@
       <div class="callout">
         <strong>UX guidance:</strong>
         <span class="muted">Keep UI states tied to server signals: show gateway verdicts, policy enforcement notes, and evidence IDs inline. Favor read-only previews first, with explicit opt-in buttons for mutating actions.</span>
-      </div>
-    </section>
-
-    <section class="card" style="grid-column:1 / -1;">
-      <h2>Admin Authentication & Storage</h2>
-      <div class="badge-row">
-        <span class="pill c">DB-only mutations</span>
-        <span class="pill g">Signed change log</span>
-        <span class="pill v">Role-scoped access</span>
-      </div>
-      <p class="muted">All configuration writes run through an admin login service backed by the database. Non-authenticated requests are rejected before reaching any control plane, ensuring only verified administrators can edit systems.</p>
-      <div class="flow" aria-label="Admin flow">
-        <div class="flow-step">
-          <strong>1) Admin Portal</strong>
-          <p class="muted">Login UI (see <a href="AdminControl.html">Admin Control</a>) posts to <code>/api/admin/login</code>, hashing credentials and issuing signed sessions.</p>
-        </div>
-        <div class="flow-step">
-          <strong>2) AuthZ Guard</strong>
-          <p class="muted">Gateway enforces session validity + role claims, denying any mutation call without a verified database record.</p>
-        </div>
-        <div class="flow-step">
-          <strong>3) Config Store</strong>
-          <p class="muted">Writes land in an encrypted configuration table with per-row signatures; append-only change log is emitted to the signal bus.</p>
-        </div>
-        <div class="flow-step">
-          <strong>4) Evidence Chain</strong>
-          <p class="muted">Every accepted change is hash-linked to Audit Core for downstream verification and rollback safety.</p>
-        </div>
-      </div>
-      <div class="callout">
-        <strong>Implementation notes:</strong>
-        <span class="muted">Back the portal with a real database (PostgreSQL, MySQL, etc.), store password hashes (Argon2/scrypt), and enforce short-lived sessions with HttpOnly, Secure cookies. No unauthenticated route should mutate the system.</span>
       </div>
     </section>
 
