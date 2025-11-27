@@ -83,8 +83,20 @@ A **read-only entropy / telemetry console** anchored to your quantum anchor imag
 - Optional backend authority via `NDSP_BACKEND` constant; defaults to **LOCAL-AUTHORITY** with session-only persistence. :contentReference[oaicite:11]{index=11}  
 - Uses `Michael_Rybaltowicz_<[Quantum_anchor]>.jpg` as the anchor visual. :contentReference[oaicite:12]{index=12}  
 
-File: `NDSP_Genesis_Core.html`  
+File: `NDSP_Genesis_Core.html`
 Image: `assets/Michael_Rybaltowicz_<[Quantum_anchor]>.jpg`
+
+---
+
+### 1.5 Admin Control & AuthN Surface
+
+A **locked admin console** that simulates a database-backed login and change-control path:
+
+- Authenticates administrators against a credential store (hashed) before any edit controls unlock.
+- Persists server configuration updates to a secure local store, rejecting writes from unauthenticated sessions.
+- Emits an append-only change log capturing actor, timestamp, and action for every mutation.
+
+File: `AdminControl.html`
 
 ---
 
