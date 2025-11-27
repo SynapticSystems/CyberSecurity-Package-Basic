@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Synaptics.Systems — Secure Login & Seed Vault</title>
+  <style>
+    :root{
+      --bg:#050715;
+      --bg2:#070a1c;
+      --panel:#0b1028;
+      --panel2:#0f1735;
+      --border:#1f2a52;
+      --border-soft:#2a3560;
+      --accent:#12f0ff;
+      --accent2:#8a7dff;
+      --accent3:#3ce57c;
+      --text:#f5f7ff;
+      --muted:#a1a7c4;
+      --shadow:0 18px 60px rgba(0,0,0,.55);
+      --radius:16px;
+    }
+    *{box-sizing:border-box;}
+    body{
+      margin:0; color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:
+        radial-gradient(1100px 800px at 90% -10%, rgba(18,240,255,.15), transparent 55%),
+        radial-gradient(1200px 800px at 8% 8%, rgba(138,125,255,.12), transparent 60%),
+        linear-gradient(180deg,var(--bg),#040615 28%, var(--bg2));
+      min-height:100vh;
+    }
+    header{
+      position:sticky; top:0; z-index:10;
+      backdrop-filter: blur(10px);
+      background: linear-gradient(180deg, rgba(5,7,21,.92), rgba(5,7,21,.75));
+      border-bottom:1px solid var(--border);
+    }
+    .wrap{max-width:1200px; margin:0 auto; padding:16px;}
+    .brand{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+    .logo{width:46px; height:46px; border-radius:14px; background:
+      radial-gradient(circle at 25% 25%, #fff, transparent 38%),
+      conic-gradient(from 130deg, var(--accent), var(--accent2), var(--accent));
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:0 0 24px rgba(18,240,255,.35);
+    }
+    h1{margin:0; font-size:22px; letter-spacing:.4px;}
+    .sub{margin:2px 0 0; color:var(--muted); font-size:13px; max-width:780px;}
+    nav{display:flex; gap:10px; flex-wrap:wrap; margin-left:auto;}
+    nav a{
+      text-decoration:none; color:var(--text);
+      border:1px solid var(--border);
+      padding:8px 10px; border-radius:12px;
+      background:rgba(255,255,255,.03);
+      font-weight:700; font-size:13px;
+      transition:.18s ease;
+    }
+    nav a:hover{border-color:var(--accent); box-shadow:0 0 0 3px rgba(18,240,255,.16);}
+    main{padding:16px; display:grid; gap:14px; grid-template-columns:1.05fr 1fr;}
+    @media (max-width:1100px){main{grid-template-columns:1fr;}}
+    .card{
+      background:linear-gradient(180deg,var(--panel),var(--panel2));
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:14px;
+      box-shadow:var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+    .card::after{
+      content:""; position:absolute; inset:-50% -30% auto auto; width:320px; height:320px;
+      background:radial-gradient(circle, rgba(18,240,255,.14), transparent 60%);
+      filter:blur(6px); opacity:.8;
+    }
+    .card h2{margin:0 0 6px; font-size:16px; letter-spacing:.3px;}
+    .muted{color:var(--muted); font-size:13px;}
+    .badge-row{display:flex; gap:6px; flex-wrap:wrap; margin:8px 0 12px;}
+    .pill{display:inline-flex; align-items:center; gap:6px; padding:5px 9px; border-radius:999px;
+      border:1px solid var(--border); background:rgba(255,255,255,.04); font-size:12px; margin-right:6px;}
+    .pill.c{border-color:rgba(18,240,255,.35); color:#d7fbff;}
+    .pill.g{border-color:rgba(60,229,124,.35); color:#d6ffe7;}
+    .pill.v{border-color:rgba(138,125,255,.35); color:#efe6ff;}
+    form{display:grid; gap:10px;}
+    label{font-size:13px; color:var(--muted); display:flex; flex-direction:column; gap:4px;}
+    input, textarea, select{
+      width:100%; padding:10px; border-radius:10px; border:1px solid var(--border-soft);
+      background:rgba(255,255,255,.03); color:var(--text); font-size:14px;
+    }
+    button{
+      appearance:none; cursor:pointer; border-radius:12px; border:1px solid var(--border);
+      background:linear-gradient(135deg, rgba(18,240,255,.16), rgba(18,240,255,.06));
+      color:var(--text); font-weight:800; padding:10px 12px; letter-spacing:.2px; font-size:14px;
+      transition:.16s ease;
+    }
+    button:hover{transform:translateY(-1px); border-color:var(--accent); box-shadow:0 0 0 3px rgba(18,240,255,.16);}
+    .grid{display:grid; gap:10px; grid-template-columns:repeat(auto-fit,minmax(260px,1fr));}
+    .list{margin:0; padding-left:16px; color:var(--muted); font-size:13px;}
+    .status{display:flex; align-items:center; justify-content:space-between; border:1px solid var(--border);
+      border-radius:12px; padding:9px 10px; background:rgba(255,255,255,.03); margin-top:10px;}
+    .status small{color:var(--muted);}
+    .table{border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-top:10px;}
+    .table table{width:100%; border-collapse:collapse;}
+    .table th, .table td{padding:10px; border-bottom:1px solid var(--border-soft); text-align:left; font-size:13px;}
+    .table th{background:rgba(255,255,255,.04);}
+    .tag{display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:999px; border:1px solid var(--border-soft);
+      background:rgba(255,255,255,.05); font-size:12px;}
+    .lock{display:flex; align-items:center; gap:10px; padding:10px; border-radius:12px;
+      border:1px dashed rgba(255,255,255,.2); color:#ffdfe8; background:rgba(255,95,122,.08);
+      margin:10px 0 6px; font-weight:700;}
+    .lock small{color:#ffdfe8; opacity:.85;}
+    .lock em{font-style:normal; color:#fff;}
+    .lock-icon{width:26px; height:26px; display:grid; place-items:center; border-radius:10px;
+      background:rgba(255,95,122,.18); border:1px solid rgba(255,95,122,.35);}
+    .disabled{opacity:.55; filter:grayscale(.25);}
+    footer{padding:18px 16px 26px; color:var(--muted); font-size:12px; text-align:center;}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap brand">
+      <div class="logo"></div>
+      <div>
+        <h1>Seeded Login & Server-Side Storage (Simulated)</h1>
+        <p class="sub">Uses Cyberseed, Genesis, and NDSP JSON assets to pre-seed credentials, guard sessions, and persist server-side state locally.</p>
+      </div>
+      <nav aria-label="Suite navigation">
+        <a href="index.html">Suite Hub</a>
+        <a href="AdminControl.html">Admin Console</a>
+        <a href="ServerFramework.html">Server Framework</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="card">
+      <h2>Login Gateway</h2>
+      <div class="badge-row">
+        <span class="pill c">Seed-aware</span>
+        <span class="pill g">Hash-secured</span>
+        <span class="pill v">Local server vault</span>
+      </div>
+      <p class="muted">Authenticate against a credential store that is auto-populated from Cyberseed / Genesis metadata. Passwords are hashed with SHA-256 before storage, and every login writes to a server-side vault simulated with localStorage.</p>
+      <form id="login-form" autocomplete="off">
+        <label>Username
+          <input id="username" name="username" placeholder="genesis-admin" required />
+        </label>
+        <label>Password
+          <input id="password" name="password" type="password" placeholder="••••••••" required />
+        </label>
+        <div class="grid">
+          <label>Authority Scope
+            <select id="scope" name="scope">
+              <option value="LOCAL-ONLY">LOCAL-ONLY</option>
+              <option value="DEFENSIVE-EDGE">DEFENSIVE-EDGE</option>
+              <option value="AUDIT-LEDGER">AUDIT-LEDGER</option>
+            </select>
+          </label>
+          <label>Session Note (optional)
+            <input id="session-note" name="session-note" placeholder="purpose, ticket, or change ref" />
+          </label>
+        </div>
+        <button type="submit">Login &amp; Bind Session</button>
+      </form>
+      <div class="status" id="login-status" aria-live="polite">
+        <span>Awaiting login.</span>
+        <small id="login-meta">No active session</small>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Seed Intelligence</h2>
+      <p class="muted">Pulled from <code>Cyberseed.json</code>, <code>Genesis.json</code>, and <code>NSDP.json</code>. Any field found is mapped into the credential issuer and session attestations.</p>
+      <div class="grid" id="seed-grid"></div>
+      <div class="table" aria-label="Seed ledger">
+        <table>
+          <thead>
+            <tr><th>Source</th><th>Key</th><th>Value</th></tr>
+          </thead>
+          <tbody id="seed-table"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Server Vault (Simulated)</h2>
+      <p class="muted">Acts like a server-side database for this static bundle. Session-bound writes are stored under <code>synaptics.server.vault</code> using the logged-in user + scope. Export or clear to rotate credentials safely.</p>
+      <div class="lock" id="vault-lock" role="alert">
+        <div class="lock-icon">🔒</div>
+        <div>
+          <div>Login required</div>
+          <small>Authenticate to unlock vault write, export, and clear controls.</small>
+        </div>
+      </div>
+      <form id="vault-form" autocomplete="off">
+        <label>Record Title
+          <input id="record-title" name="record-title" placeholder="Access token hash, API key alias" required />
+        </label>
+        <label>Record Payload
+          <textarea id="record-body" name="record-body" rows="3" placeholder="Encrypted blob, change rationale, or audit note" required></textarea>
+        </label>
+        <button type="submit">Store in Vault</button>
+      </form>
+      <div class="actions" style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;">
+        <button type="button" id="export-vault">Export Vault JSON</button>
+        <button type="button" id="clear-vault" style="border-color:#ff5f7a; color:#ffdfe8;">Clear Vault</button>
+      </div>
+      <div class="table" aria-label="Vault records">
+        <table>
+          <thead>
+            <tr><th>Owner</th><th>Scope</th><th>Title</th><th>Created</th></tr>
+          </thead>
+          <tbody id="vault-table"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Synaptics.Systems — Login and vault run locally. Replace the storage adapter with your own API to persist to a real database.
+  </footer>
+
+  <script>
+    const STORAGE_KEY = 'synaptics.auth.users';
+    const VAULT_KEY = 'synaptics.server.vault';
+    const SESSION_KEY = 'synaptics.session';
+    const SEED_FILES = [
+      {name:'Cyberseed.json', path:'Cyberseed.json'},
+      {name:'Genesis.json', path:'Genesis.json'},
+      {name:'NSDP.json', path:'NSDP.json'}
+    ];
+
+    const qs = (id) => document.getElementById(id);
+
+    const hashValue = async (text) => {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(text);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2,'0')).join('');
+    };
+
+    const safeParseField = (content, key) => {
+      const regex = new RegExp(`"${key}"\\s*:\\s*"([^"]+)"`, 'i');
+      const match = content.match(regex);
+      return match ? match[1] : null;
+    };
+
+    const loadSeeds = async () => {
+      const entries = [];
+      for (const file of SEED_FILES) {
+        try {
+          const res = await fetch(file.path);
+          const text = await res.text();
+          const candidates = [
+            ['cyberseed_id', safeParseField(text, 'cyberseed_id')],
+            ['protocol_name', safeParseField(text, 'protocol_name')],
+            ['owner', safeParseField(text, 'Owner') || safeParseField(text, 'owner')],
+            ['quantum_anchor', safeParseField(text, 'quantum_anchor')],
+            ['entropy_trace', safeParseField(text, 'entropy_trace')]
+          ].filter(([,v]) => v);
+          if (candidates.length === 0) {
+            entries.push({source:file.name, key:'raw_excerpt', value:text.slice(0,160)+'…'});
+          } else {
+            candidates.forEach(([key, value]) => entries.push({source:file.name, key, value}));
+          }
+        } catch (err) {
+          entries.push({source:file.name, key:'load_error', value:err.message});
+        }
+      }
+      renderSeedCards(entries);
+      return entries;
+    };
+
+    const renderSeedCards = (entries) => {
+      const grid = qs('seed-grid');
+      const table = qs('seed-table');
+      grid.innerHTML = '';
+      table.innerHTML = '';
+      const grouped = entries.reduce((acc, cur) => {
+        acc[cur.source] = acc[cur.source] || [];
+        acc[cur.source].push(cur);
+        return acc;
+      }, {});
+      Object.entries(grouped).forEach(([source, items]) => {
+        const card = document.createElement('div');
+        card.className = 'box';
+        card.innerHTML = `<strong>${source}</strong>` +
+          items.map(i => `<div class="tag"><span>${i.key}</span><span>${i.value}</span></div>`).join('');
+        grid.appendChild(card);
+      });
+      entries.forEach(({source, key, value}) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${source}</td><td>${key}</td><td>${value}</td>`;
+        table.appendChild(row);
+      });
+    };
+
+    const readUsers = () => {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return [];
+      try { return JSON.parse(raw); } catch { return []; }
+    };
+
+    const writeUsers = (users) => localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+
+    const initDefaultUser = async (entries) => {
+      const users = readUsers();
+      if (users.length > 0) return users;
+      const seedOwner = (entries.find(e => e.key.toLowerCase().includes('owner')) || {}).value || 'seed-owner';
+      const seedId = (entries.find(e => e.key.toLowerCase().includes('cyberseed')) || {}).value || 'CYBERSEED-LOCAL';
+      const bootstrap = [
+        {username:'genesis-admin', secret:'synaptics'},
+        {username:'admin', secret:'changeme'}
+      ];
+      for (const account of bootstrap) {
+        const passwordHash = await hashValue(account.secret);
+        users.push({
+          username: account.username,
+          passwordHash,
+          issuer: seedOwner,
+          seedId,
+          createdAt: new Date().toISOString()
+        });
+      }
+      writeUsers(users);
+      return users;
+    };
+
+    let activeUser = null;
+
+    const setStatus = (message, meta) => {
+      qs('login-status').querySelector('span').textContent = message;
+      qs('login-meta').textContent = meta || '';
+    };
+
+    const toggleVaultLock = (locked) => {
+      const form = qs('vault-form');
+      const lock = qs('vault-lock');
+      if (lock) lock.style.display = locked ? 'flex' : 'none';
+      [...form.elements].forEach(el => el.disabled = locked);
+      ['export-vault','clear-vault'].forEach(id => {
+        const el = qs(id);
+        if (el) el.disabled = locked;
+        if (locked) el?.classList.add('disabled'); else el?.classList.remove('disabled');
+      });
+      form.classList.toggle('disabled', locked);
+    };
+
+    const persistSession = (userProfile) => {
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify(userProfile));
+    };
+
+    const hydrateSession = (users) => {
+      const session = JSON.parse(sessionStorage.getItem(SESSION_KEY) || 'null');
+      if (!session) return false;
+      const user = users.find(u => u.username === session.username);
+      if (!user) return false;
+      activeUser = {...user, scope:session.scope, note:session.note, loginAt:session.loginAt};
+      setStatus(`Session bound to ${user.username}`, `${session.scope} — issuer ${user.issuer}`);
+      toggleVaultLock(false);
+      return true;
+    };
+
+    const bindLogin = (users) => {
+      qs('login-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = qs('username').value.trim();
+        const password = qs('password').value;
+        const scope = qs('scope').value;
+        const note = qs('session-note').value.trim();
+        const user = users.find(u => u.username === username);
+        if (!user) {
+          setStatus('Denied: unknown user', 'No profile');
+          return;
+        }
+        const hash = await hashValue(password);
+        if (hash !== user.passwordHash) {
+          setStatus('Denied: invalid secret', 'Hash mismatch');
+          return;
+        }
+        activeUser = {...user, scope, note, loginAt:new Date().toISOString()};
+        persistSession(activeUser);
+        setStatus(`Session bound to ${user.username}`, `${scope} — issuer ${user.issuer}`);
+        appendVault({title:'Session login', body:`Scope=${scope}; note=${note||'none'}`, owner:user.username});
+        renderVault();
+        toggleVaultLock(false);
+      });
+    };
+
+    const readVault = () => {
+      const raw = localStorage.getItem(VAULT_KEY);
+      if (!raw) return [];
+      try { return JSON.parse(raw); } catch { return []; }
+    };
+
+    const writeVault = (records) => localStorage.setItem(VAULT_KEY, JSON.stringify(records));
+
+    const appendVault = (record) => {
+      if (!activeUser) return;
+      const records = readVault();
+      records.push({
+        owner: activeUser.username,
+        scope: activeUser.scope,
+        title: record.title,
+        body: record.body,
+        createdAt: new Date().toISOString()
+      });
+      writeVault(records);
+    };
+
+    const renderVault = () => {
+      const table = qs('vault-table');
+      table.innerHTML = '';
+      readVault().slice().reverse().forEach(r => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${r.owner}</td><td>${r.scope}</td><td>${r.title}</td><td>${new Date(r.createdAt).toLocaleString()}</td>`;
+        table.appendChild(row);
+      });
+    };
+
+    const bindVaultForm = () => {
+      qs('vault-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!activeUser) { setStatus('Denied: login required', 'No session'); return; }
+        const title = qs('record-title').value.trim();
+        const body = qs('record-body').value.trim();
+        appendVault({title, body});
+        renderVault();
+        e.target.reset();
+      });
+      qs('export-vault').addEventListener('click', () => {
+        const data = JSON.stringify(readVault(), null, 2);
+        const blob = new Blob([data], {type:'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'synaptics-vault.json';
+        a.click(); URL.revokeObjectURL(url);
+      });
+      qs('clear-vault').addEventListener('click', () => {
+        writeVault([]); renderVault();
+      });
+    };
+
+    (async () => {
+      const seeds = await loadSeeds();
+      const users = await initDefaultUser(seeds);
+      bindLogin(users);
+      bindVaultForm();
+      toggleVaultLock(true);
+      hydrateSession(users);
+      renderVault();
+    })();
+  </script>
+</body>
+</html>

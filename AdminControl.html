@@ -123,16 +123,42 @@
     const logTable = document.querySelector('#log-table tbody');
 
     const dbKey = 'synaptics.admin.db';
-    const sessionKey = 'synaptics.admin.session';
+    const sessionKey = 'synaptics.session';
+    const userKey = 'synaptics.auth.users';
 
-    // bootstrap database with default admin account and hashed password
-    function hash(str){
-      return Array.from(new TextEncoder().encode(str)).reduce((acc,b)=>acc + b.toString(16).padStart(2,'0'), '');
+    async function hashValue(text){
+      const encoder = new TextEncoder();
+      const data = encoder.encode(text);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2,'0')).join('');
     }
+
+    async function ensureUsers(){
+      const raw = localStorage.getItem(userKey);
+      let users = [];
+      if(raw){
+        try { users = JSON.parse(raw); } catch { users = []; }
+      }
+      if(users.length === 0){
+        users = [];
+      }
+      const hasAdmin = users.some(u=>u.username==='admin');
+      const hasGenesis = users.some(u=>u.username==='genesis-admin');
+      if(!hasAdmin){
+        users.push({username:'admin', passwordHash:await hashValue('changeme'), issuer:'Admin Console', seedId:'LOCAL-ADMIN'});
+      }
+      if(!hasGenesis){
+        users.push({username:'genesis-admin', passwordHash:await hashValue('synaptics'), issuer:'Seeded', seedId:'CYBERSEED-LOCAL'});
+      }
+      localStorage.setItem(userKey, JSON.stringify(users));
+      return users;
+    }
+
     function loadDb(){
       const raw = localStorage.getItem(dbKey);
       if(!raw){
-        const seeded = {users:[{username:'admin', passHash:hash('changeme')}], config:null, log:[]};
+        const seeded = {config:null, log:[]};
         localStorage.setItem(dbKey, JSON.stringify(seeded));
         return seeded;
       }
@@ -140,7 +166,7 @@
     }
     function saveDb(db){ localStorage.setItem(dbKey, JSON.stringify(db)); }
 
-    function setAuthState(authenticated, username=''){      
+    function setAuthState(authenticated, username=''){
       if(authenticated){
         authStatus.setAttribute('data-state','ok');
         authDot.classList.add('ok');
@@ -179,9 +205,11 @@
     }
 
     // hydrate state on load
-    (function init(){
+    (async function init(){
+      const users = await ensureUsers();
       const session = JSON.parse(sessionStorage.getItem(sessionKey) || 'null');
-      setAuthState(!!session, session?.username);
+      const validSession = session && users.some(u=>u.username===session.username);
+      setAuthState(!!validSession, session?.username);
       const db = loadDb();
       if(db.config){
         form.service.value = db.config.service || '';
@@ -191,25 +219,29 @@
       renderLog();
     })();
 
-    loginForm.addEventListener('submit', (e)=>{
+    loginForm.addEventListener('submit', async (e)=>{
       e.preventDefault();
-      const db = loadDb();
       const username = loginForm.username.value.trim();
       const pwd = loginForm.password.value;
-      const user = db.users.find(u=>u.username===username && u.passHash===hash(pwd));
+      const users = await ensureUsers();
+      const pwdHash = await hashValue(pwd);
+      const user = users.find(u=>u.username===username && u.passwordHash===pwdHash);
       if(!user){
         alert('Invalid credentials.');
         return;
       }
-      sessionStorage.setItem(sessionKey, JSON.stringify({username, ts:Date.now()}));
+      const session = {username:user.username, issuer:user.issuer, scope:'ADMIN', loginAt:new Date().toISOString()};
+      sessionStorage.setItem(sessionKey, JSON.stringify(session));
       setAuthState(true, username);
       writeLog('Authenticated');
     });
 
-    form.addEventListener('submit',(e)=>{
+    form.addEventListener('submit', async (e)=>{
       e.preventDefault();
       const session = JSON.parse(sessionStorage.getItem(sessionKey) || 'null');
-      if(!session){
+      const users = await ensureUsers();
+      const validSession = session && users.some(u=>u.username===session.username);
+      if(!validSession){
         alert('Denied: login required for edits.');
         return;
       }
