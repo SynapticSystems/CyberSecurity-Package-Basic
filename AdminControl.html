@@ -224,8 +224,7 @@
       const username = loginForm.username.value.trim();
       const pwd = loginForm.password.value;
       const users = await ensureUsers();
-      const pwdHash = await hashValue(pwd);
-      const user = users.find(u=>u.username===username && u.passwordHash===pwdHash);
+      const user = users.find(u=>u.username===username && u.passwordHash===await hashValue(pwd));
       if(!user){
         alert('Invalid credentials.');
         return;

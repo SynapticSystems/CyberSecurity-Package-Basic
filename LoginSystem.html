@@ -222,7 +222,6 @@
   <script>
     const STORAGE_KEY = 'synaptics.auth.users';
     const VAULT_KEY = 'synaptics.server.vault';
-    const SESSION_KEY = 'synaptics.session';
     const SEED_FILES = [
       {name:'Cyberseed.json', path:'Cyberseed.json'},
       {name:'Genesis.json', path:'Genesis.json'},
@@ -308,20 +307,10 @@
       if (users.length > 0) return users;
       const seedOwner = (entries.find(e => e.key.toLowerCase().includes('owner')) || {}).value || 'seed-owner';
       const seedId = (entries.find(e => e.key.toLowerCase().includes('cyberseed')) || {}).value || 'CYBERSEED-LOCAL';
-      const bootstrap = [
-        {username:'genesis-admin', secret:'synaptics'},
-        {username:'admin', secret:'changeme'}
-      ];
-      for (const account of bootstrap) {
-        const passwordHash = await hashValue(account.secret);
-        users.push({
-          username: account.username,
-          passwordHash,
-          issuer: seedOwner,
-          seedId,
-          createdAt: new Date().toISOString()
-        });
-      }
+      const username = 'genesis-admin';
+      const passwordHash = await hashValue('synaptics');
+      const profile = {username, passwordHash, issuer:seedOwner, seedId, createdAt:new Date().toISOString()};
+      users.push(profile);
       writeUsers(users);
       return users;
     };
@@ -346,21 +335,6 @@
       form.classList.toggle('disabled', locked);
     };
 
-    const persistSession = (userProfile) => {
-      sessionStorage.setItem(SESSION_KEY, JSON.stringify(userProfile));
-    };
-
-    const hydrateSession = (users) => {
-      const session = JSON.parse(sessionStorage.getItem(SESSION_KEY) || 'null');
-      if (!session) return false;
-      const user = users.find(u => u.username === session.username);
-      if (!user) return false;
-      activeUser = {...user, scope:session.scope, note:session.note, loginAt:session.loginAt};
-      setStatus(`Session bound to ${user.username}`, `${session.scope} — issuer ${user.issuer}`);
-      toggleVaultLock(false);
-      return true;
-    };
-
     const bindLogin = (users) => {
       qs('login-form').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -379,7 +353,6 @@
           return;
         }
         activeUser = {...user, scope, note, loginAt:new Date().toISOString()};
-        persistSession(activeUser);
         setStatus(`Session bound to ${user.username}`, `${scope} — issuer ${user.issuer}`);
         appendVault({title:'Session login', body:`Scope=${scope}; note=${note||'none'}`, owner:user.username});
         renderVault();
@@ -447,7 +420,6 @@
       bindLogin(users);
       bindVaultForm();
       toggleVaultLock(true);
-      hydrateSession(users);
       renderVault();
     })();
   </script>
